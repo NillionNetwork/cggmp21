@@ -1624,14 +1624,20 @@ mod test {
 
     #[test]
     fn read_write_signature_secp256k1() {
-        read_write_signature::<crate::supported_curves::Secp256k1>()
+        //read_write_signature::<crate::supported_curves::Secp256k1>()
+        read_write_signature::<crate::generic_ec::curves::Secp256k1>()
     }
     #[test]
     fn read_write_signature_secp256r1() {
-        read_write_signature::<crate::supported_curves::Secp256r1>()
+        //read_write_signature::<crate::supported_curves::Secp256r1>()
+        read_write_signature::<crate::generic_ec::curves::Secp256r1>()
+
     }
     #[test]
     fn read_write_signature_stark() {
-        read_write_signature::<crate::supported_curves::Stark>()
+        //read_write_signature::<crate::supported_curves::Stark>()
+        read_write_signature::<crate::generic_ec::curves::Stark>()
+
     }
 }
+

@@ -15,7 +15,7 @@ readme = "../README.md"
 cggmp21-keygen = { workspace = true }
 key-share = { workspace = true, features = ["serde"] }
 
-generic-ec = { workspace = true, features = ["serde", "udigest", "hash-to-scalar"] }
+generic-ec = { workspace = true, features = ["serde", "udigest", "hash-to-scalar", "curve-secp256k1", "curve-secp256r1", "curve-stark"] }
 generic-ec-zkp = { workspace = true, features = ["serde", "udigest"] }
 round-based = { workspace = true, features = ["derive"] }
 
@@ -26,6 +26,8 @@ digest = { workspace = true }
 sha2 = { workspace = true }
 rand_core = { workspace = true }
 rand_hash = { workspace = true }
+rand = "0.8" 
+
 
 futures = { workspace = true }
 

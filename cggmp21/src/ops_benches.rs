@@ -2,7 +2,8 @@
 
 use generic_ec::{Point, SecretScalar};
 use generic_ec::curves::Secp256k1;
-use cggmp21::security_level::SecurityLevel128;
+use crate::security_level::SecurityLevel128;
+use crate::utils;
 use std::time::Instant;
 use rand::rngs::OsRng;
 use paillier_zk::{
@@ -30,11 +31,11 @@ fn computation_cost_ring(n: Integer) {
     let mut total_duration = std::time::Duration::ZERO;
 
     for _ in 0..10 {
-        let exponent = Integer::from(100);
         let s: Integer = Integer::from(100);
-
+        let mut rng = OsRng;
+        let a = SecretScalar::<Secp256k1>::random(&mut rng);
         let start = Instant::now();
-        let _ring_exponentiation = s.pow_mod(&exponent, &n);
+        let _ring_exponentiation = s.pow_mod_ref(&crate::utils::scalar_to_bignumber(&a), &n);
         total_duration += start.elapsed();
     }
 
@@ -48,12 +49,13 @@ fn computation_cost_ring_squared(n: Integer) {
     for _ in 0..10 {
         let s = Integer::from(100);
         let beta = Integer::from(100);
-        let exponent = Integer::from(100);
+        let mut rng = OsRng;
+        let exponent = SecretScalar::<Secp256k1>::random(&mut rng);
         let enc_j = fast_paillier::EncryptionKey::from_n(n.clone());
         let cipher = enc_j.encrypt_with(&beta, &s).unwrap();
 
         let start = Instant::now();
-        let _ring_exponentiation_square = enc_j.omul(&exponent, &cipher);
+        let _ring_exponentiation_square = enc_j.omul(&utils::scalar_to_bignumber(&exponent), &cipher);
         total_duration += start.elapsed();
     }
 
@@ -68,7 +70,7 @@ mod tests {
     #[test]
     fn test_computation_cost() {
         let mut rng = OsRng;
-        let pregenerated_primes = cggmp21::PregeneratedPrimes::<SecurityLevel128>::generate(&mut rng);
+        let pregenerated_primes = crate::PregeneratedPrimes::<SecurityLevel128>::generate(&mut rng);
         let (p, q) = pregenerated_primes.split();
         let n: Integer = (&p * &q).complete();
         computation_cost_curve();

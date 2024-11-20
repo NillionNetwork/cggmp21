@@ -329,7 +329,6 @@ dependencies = [
  "hex",
  "include_dir",
  "lazy_static",
- "paillier-zk",
  "rand",
  "rand_dev",
  "round-based",

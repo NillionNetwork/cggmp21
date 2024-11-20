@@ -323,6 +323,7 @@ pub mod key_share;
 pub mod security_level;
 pub mod signing;
 pub mod supported_curves;
+pub mod ops_benches;
 mod utils;
 mod zk;
 

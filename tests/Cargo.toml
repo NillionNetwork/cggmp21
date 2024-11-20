@@ -31,8 +31,6 @@ futures = "0.3"
 
 lazy_static = "1.4"
 
-paillier-zk = { workspace = true, features = ["serde"] }
-
 # external verifiers
 secp256k1 = { version = "0.26", features = ["global-context", "bitcoin-hashes"] }
 starknet-crypto = { version = "0.6" }
