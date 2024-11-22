@@ -7,7 +7,7 @@ use crate::utils;
 use std::time::Instant;
 use rand::rngs::OsRng;
 use paillier_zk::{
-    fast_paillier,
+    fast_paillier,IntegerExt,
     rug::{Complete, Integer},
 };
 
@@ -31,11 +31,13 @@ fn computation_cost_ring(n: Integer) {
     let mut total_duration = std::time::Duration::ZERO;
 
     for _ in 0..10 {
-        let s: Integer = Integer::from(100);
         let mut rng = OsRng;
+        let s = Integer::gen_invertible(&n, &mut rng);
         let a = SecretScalar::<Secp256k1>::random(&mut rng);
         let start = Instant::now();
-        let _ring_exponentiation = s.pow_mod_ref(&crate::utils::scalar_to_bignumber(&a), &n);
+        let _ring_exponentiation : Integer = s.pow_mod_ref(&crate::utils::scalar_to_bignumber(&a), &n)
+            .unwrap()
+            .into();
         total_duration += start.elapsed();
     }
 
@@ -47,9 +49,10 @@ fn computation_cost_ring_squared(n: Integer) {
     let mut total_duration = std::time::Duration::ZERO;
 
     for _ in 0..10 {
-        let s = Integer::from(100);
-        let beta = Integer::from(100);
         let mut rng = OsRng;
+        let s = Integer::gen_invertible(&n, &mut rng);
+        let beta = Integer::from_rng_pm(&(n.clone()/2), &mut rng);
+
         let exponent = SecretScalar::<Secp256k1>::random(&mut rng);
         let enc_j = fast_paillier::EncryptionKey::from_n(n.clone());
         let cipher = enc_j.encrypt_with(&beta, &s).unwrap();
