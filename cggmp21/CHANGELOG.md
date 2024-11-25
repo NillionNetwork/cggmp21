@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.0
+* Update `hd-wallet` dep to v0.6 [#120]
+
+[#120]: https://github.com/LFDT-Lockness/cggmp21/pull/120
+
 ## v0.5.0
 * BREAKING: use `hd-wallet` crate for HD support instead of `slip-10` [#115]
 * BREAKING: rename `hd-wallets` feature into `hd-wallet` [#115]
