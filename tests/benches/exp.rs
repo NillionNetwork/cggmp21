@@ -1,5 +1,3 @@
-use std::hint::black_box;
-
 use cggmp21::{
     fast_paillier::utils::external_rand,
     rug::{self, Complete},
