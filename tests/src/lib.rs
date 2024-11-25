@@ -179,21 +179,26 @@ pub trait CurveParams: Curve {
     /// Which HD derivation algorithm to use with that curve
     #[cfg(feature = "hd-wallet")]
     type HdAlgo: cggmp21::hd_wallet::HdWallet<Self>;
+    /// External verifier for signatures on this curve
+    type ExVerifier: external_verifier::ExternalVerifier<Self>;
 }
 
 impl CurveParams for cggmp21::supported_curves::Secp256k1 {
     #[cfg(feature = "hd-wallet")]
     type HdAlgo = cggmp21::hd_wallet::Slip10;
+    type ExVerifier = external_verifier::blockchains::Bitcoin;
 }
 
 impl CurveParams for cggmp21::supported_curves::Secp256r1 {
     #[cfg(feature = "hd-wallet")]
     type HdAlgo = cggmp21::hd_wallet::Slip10;
+    type ExVerifier = external_verifier::Noop;
 }
 
 impl CurveParams for cggmp21::supported_curves::Stark {
     #[cfg(feature = "hd-wallet")]
     type HdAlgo = cggmp21::hd_wallet::Stark;
+    type ExVerifier = external_verifier::blockchains::StarkNet;
 }
 
 #[macro_export]

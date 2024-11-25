@@ -15,18 +15,9 @@ use cggmp21::{security_level::SecurityLevel128, ExecutionId};
 cggmp21_tests::test_suite! {
     async_test = signing_works,
     generics = [
-        secp256k1 = <
-            cggmp21::supported_curves::Secp256k1,
-            cggmp21_tests::external_verifier::blockchains::Bitcoin
-        >,
-        secp256r1 = <
-            cggmp21::supported_curves::Secp256r1,
-            cggmp21_tests::external_verifier::Noop
-        >,
-        stark = <
-            cggmp21::supported_curves::Stark,
-            cggmp21_tests::external_verifier::blockchains::StarkNet
-        >,
+        secp256k1 = <cggmp21::supported_curves::Secp256k1>,
+        secp256r1 = <cggmp21::supported_curves::Secp256r1>,
+        stark = <cggmp21::supported_curves::Stark>,
     ],
     suites = [
         n2(None, 2, false, false),
@@ -45,11 +36,10 @@ cggmp21_tests::test_suite! {
     ]
 }
 
-async fn signing_works<E, V>(t: Option<u16>, n: u16, reliable_broadcast: bool, hd_wallet: bool)
+async fn signing_works<E>(t: Option<u16>, n: u16, reliable_broadcast: bool, hd_wallet: bool)
 where
     E: Curve + cggmp21_tests::CurveParams,
     Point<E>: HasAffineX<E>,
-    V: ExternalVerifier<E>,
 {
     #[cfg(not(feature = "hd-wallet"))]
     assert!(!hd_wallet);
@@ -134,25 +124,16 @@ where
 
     assert!(signatures.iter().all(|s_i| signatures[0] == *s_i));
 
-    V::verify(&public_key, &signatures[0], &original_message_to_sign)
+    E::ExVerifier::verify(&public_key, &signatures[0], &original_message_to_sign)
         .expect("external verification failed")
 }
 
 cggmp21_tests::test_suite! {
     async_test = signing_with_presigs,
     generics = [
-        secp256k1 = <
-            cggmp21::supported_curves::Secp256k1,
-            cggmp21_tests::external_verifier::blockchains::Bitcoin
-        >,
-        secp256r1 = <
-            cggmp21::supported_curves::Secp256r1,
-            cggmp21_tests::external_verifier::Noop
-        >,
-        stark = <
-            cggmp21::supported_curves::Stark,
-            cggmp21_tests::external_verifier::blockchains::StarkNet
-        >,
+        secp256k1 = <cggmp21::supported_curves::Secp256k1>,
+        secp256r1 = <cggmp21::supported_curves::Secp256r1>,
+        stark = <cggmp21::supported_curves::Stark>,
     ],
     suites = [
         t3n5(Some(3), 5, false),
@@ -161,11 +142,10 @@ cggmp21_tests::test_suite! {
     ]
 }
 
-async fn signing_with_presigs<E, V>(t: Option<u16>, n: u16, hd_wallet: bool)
+async fn signing_with_presigs<E>(t: Option<u16>, n: u16, hd_wallet: bool)
 where
     E: Curve + cggmp21_tests::CurveParams,
     Point<E>: HasAffineX<E>,
-    V: ExternalVerifier<E>,
 {
     #[cfg(not(feature = "hd-wallet"))]
     assert!(!hd_wallet);
@@ -260,25 +240,16 @@ where
         .verify(&public_key, &message_to_sign)
         .expect("signature is not valid");
 
-    V::verify(&public_key, &signature, &original_message_to_sign)
+    E::ExVerifier::verify(&public_key, &signature, &original_message_to_sign)
         .expect("external verification failed")
 }
 
 cggmp21_tests::test_suite! {
     test = signing_sync,
     generics = [
-        secp256k1 = <
-            cggmp21::supported_curves::Secp256k1,
-            cggmp21_tests::external_verifier::blockchains::Bitcoin
-        >,
-        secp256r1 = <
-            cggmp21::supported_curves::Secp256r1,
-            cggmp21_tests::external_verifier::Noop
-        >,
-        stark = <
-            cggmp21::supported_curves::Stark,
-            cggmp21_tests::external_verifier::blockchains::StarkNet
-        >,
+        secp256k1 = <cggmp21::supported_curves::Secp256k1>,
+        secp256r1 = <cggmp21::supported_curves::Secp256r1>,
+        stark = <cggmp21::supported_curves::Stark>,
     ],
     suites = [
         n3(None, 3, false),
@@ -290,11 +261,10 @@ cggmp21_tests::test_suite! {
     ]
 }
 
-fn signing_sync<E, V>(t: Option<u16>, n: u16, hd_wallet: bool)
+fn signing_sync<E>(t: Option<u16>, n: u16, hd_wallet: bool)
 where
     E: Curve + cggmp21_tests::CurveParams,
     Point<E>: HasAffineX<E>,
-    V: ExternalVerifier<E>,
 {
     #[cfg(not(feature = "hd-wallet"))]
     assert!(!hd_wallet);
@@ -378,6 +348,6 @@ where
 
     assert!(signatures.iter().all(|s_i| signatures[0] == *s_i));
 
-    V::verify(&public_key, &signatures[0], &original_message_to_sign)
+    E::ExVerifier::verify(&public_key, &signatures[0], &original_message_to_sign)
         .expect("external verification failed")
 }
