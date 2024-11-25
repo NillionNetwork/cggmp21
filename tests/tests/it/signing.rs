@@ -227,7 +227,7 @@ mod generic {
     #[test_case::case(Some(3), 5, false; "t3n5")]
     #[cfg_attr(feature = "hd-wallet", test_case::case(None, 3, true; "n3-hd"))]
     #[cfg_attr(feature = "hd-wallet", test_case::case(Some(3), 5, true; "t3n5-hd"))]
-    fn signing_sync<E: Curve, V>(t: Option<u16>, n: u16, hd_wallet: bool)
+    fn signing_sync<E, V>(t: Option<u16>, n: u16, hd_wallet: bool)
     where
         E: Curve + cggmp21_tests::CurveParams,
         Point<E>: HasAffineX<E>,
