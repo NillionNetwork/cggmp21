@@ -173,3 +173,25 @@ pub fn random_derivation_path(rng: &mut impl rand::RngCore) -> Vec<u32> {
         .take(len)
         .collect::<Vec<_>>()
 }
+
+/// Parameters per each curve that are needed in tests
+pub trait CurveParams: Curve {
+    /// Which HD derivation algorithm to use with that curve
+    #[cfg(feature = "hd-wallet")]
+    type HdAlgo: cggmp21::hd_wallet::HdWallet<Self>;
+}
+
+impl CurveParams for cggmp21::supported_curves::Secp256k1 {
+    #[cfg(feature = "hd-wallet")]
+    type HdAlgo = cggmp21::hd_wallet::Slip10;
+}
+
+impl CurveParams for cggmp21::supported_curves::Secp256r1 {
+    #[cfg(feature = "hd-wallet")]
+    type HdAlgo = cggmp21::hd_wallet::Slip10;
+}
+
+impl CurveParams for cggmp21::supported_curves::Stark {
+    #[cfg(feature = "hd-wallet")]
+    type HdAlgo = cggmp21::hd_wallet::Stark;
+}

@@ -17,17 +17,15 @@ mod generic {
     #[test_case::case(3, 5, false; "t3n5")]
     #[cfg_attr(feature = "hd-wallet", test_case::case(3, 5, true; "t3n5-hd"))]
     #[tokio::test]
-    async fn full_pipeline_works<E: Curve, Hd: cggmp21::hd_wallet::HdWallet<E>>(
-        t: u16,
-        n: u16,
-        hd_enabled: bool,
-    ) where
+    async fn full_pipeline_works<E>(t: u16, n: u16, hd_enabled: bool)
+    where
+        E: Curve + cggmp21_tests::CurveParams,
         Point<E>: generic_ec::coords::HasAffineX<E>,
     {
         let mut rng = DevRng::new();
         let incomplete_shares = run_keygen(t, n, hd_enabled, &mut rng).await;
         let shares = run_aux_gen(incomplete_shares, &mut rng).await;
-        run_signing::<E, Hd>(&shares, hd_enabled, &mut rng).await;
+        run_signing(&shares, hd_enabled, &mut rng).await;
     }
 
     async fn run_keygen<E>(
@@ -107,14 +105,10 @@ mod generic {
             .collect()
     }
 
-    async fn run_signing<E, Hd>(
-        shares: &[KeyShare<E>],
-        random_derivation_path: bool,
-        rng: &mut DevRng,
-    ) where
-        E: Curve,
+    async fn run_signing<E>(shares: &[KeyShare<E>], random_derivation_path: bool, rng: &mut DevRng)
+    where
+        E: Curve + cggmp21_tests::CurveParams,
         Point<E>: generic_ec::coords::HasAffineX<E>,
-        Hd: cggmp21::hd_wallet::HdWallet<E>,
     {
         #[cfg(not(feature = "hd-wallet"))]
         assert!(!random_derivation_path);
@@ -160,7 +154,7 @@ mod generic {
                 #[cfg(feature = "hd-wallet")]
                 let signing = if let Some(derivation_path) = derivation_path {
                     signing
-                        .set_derivation_path_with_algo::<Hd, _>(derivation_path)
+                        .set_derivation_path_with_algo::<E::HdAlgo, _>(derivation_path)
                         .unwrap()
                 } else {
                     signing
@@ -178,7 +172,7 @@ mod generic {
         let public_key = if let Some(path) = &derivation_path {
             generic_ec::NonZero::from_point(
                 shares[0]
-                    .derive_child_public_key::<Hd, _>(path.iter().cloned())
+                    .derive_child_public_key::<E::HdAlgo, _>(path.iter().cloned())
                     .unwrap()
                     .public_key,
             )
@@ -196,10 +190,10 @@ mod generic {
         assert!(signatures.iter().all(|s_i| signatures[0] == *s_i));
     }
 
-    #[instantiate_tests(<cggmp21::supported_curves::Secp256r1, cggmp21::hd_wallet::Slip10>)]
+    #[instantiate_tests(<cggmp21::supported_curves::Secp256r1>)]
     mod secp256r1 {}
-    #[instantiate_tests(<cggmp21::supported_curves::Secp256k1, cggmp21::hd_wallet::Slip10>)]
+    #[instantiate_tests(<cggmp21::supported_curves::Secp256k1>)]
     mod secp256k1 {}
-    #[instantiate_tests(<cggmp21::supported_curves::Stark, cggmp21::hd_wallet::Stark>)]
+    #[instantiate_tests(<cggmp21::supported_curves::Stark>)]
     mod stark {}
 }
