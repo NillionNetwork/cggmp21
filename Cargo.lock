@@ -1085,9 +1085,8 @@ checksum = "2c6201b9ff9fd90a5a3bac2e56a830d0caa509576f0e503818ee82c181b3437a"
 
 [[package]]
 name = "hd-wallet"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4111172d55e2217d689df0fc9038cbd65826dd842ac5df9a04363accfa0769a3"
+version = "0.6.0"
+source = "git+https://github.com/LFDT-Lockness/hd-wallet?branch=dt#158b65ce54ed6d0d031a9414890b4a9170dd4f11"
 dependencies = [
  "generic-array",
  "generic-ec",

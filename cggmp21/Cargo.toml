@@ -47,10 +47,12 @@ generic-tests = { workspace = true }
 
 [features]
 all-curves = ["curve-secp256k1", "curve-secp256r1", "curve-stark"]
-curve-secp256k1 = ["generic-ec/curve-secp256k1"]
-curve-secp256r1 = ["generic-ec/curve-secp256r1"]
-curve-stark = ["generic-ec/curve-stark"]
+curve-secp256k1 = ["generic-ec/curve-secp256k1", "hd-wallet?/curve-secp256k1"]
+curve-secp256r1 = ["generic-ec/curve-secp256r1", "hd-wallet?/curve-secp256r1"]
+curve-stark = ["generic-ec/curve-stark", "hd-wallet?/curve-stark"]
 hd-wallet = ["dep:hd-wallet", "cggmp21-keygen/hd-wallet"]
+hd-slip10 = ["hd-wallet/slip10"]
+hd-stark = ["hd-wallet/stark"]
 spof = ["key-share/spof"]
 
 state-machine = ["cggmp21-keygen/state-machine"]

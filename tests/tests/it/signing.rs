@@ -24,7 +24,7 @@ mod generic {
     #[cfg_attr(feature = "hd-wallet", test_case::case(Some(2), 3, false, true; "t2n3-hd"))]
     #[cfg_attr(feature = "hd-wallet", test_case::case(Some(3), 3, false, true; "t3n3-hd"))]
     #[tokio::test]
-    async fn signing_works<E: Curve, V>(
+    async fn signing_works<E: Curve, Hd: cggmp21::hd_wallet::HdWallet<E>, V>(
         t: Option<u16>,
         n: u16,
         reliable_broadcast: bool,
@@ -80,7 +80,9 @@ mod generic {
 
                 #[cfg(feature = "hd-wallet")]
                 let signing = if let Some(derivation_path) = derivation_path {
-                    signing.set_derivation_path(derivation_path).unwrap()
+                    signing
+                        .set_derivation_path_with_algo::<Hd, _>(derivation_path)
+                        .unwrap()
                 } else {
                     signing
                 };
@@ -97,9 +99,7 @@ mod generic {
         let public_key = if let Some(path) = &derivation_path {
             generic_ec::NonZero::from_point(
                 shares[0]
-                    .derive_child_public_key::<cggmp21::hd_wallet::Slip10Like, _>(
-                        path.iter().cloned(),
-                    )
+                    .derive_child_public_key::<Hd, _>(path.iter().cloned())
                     .unwrap()
                     .public_key,
             )
@@ -123,8 +123,11 @@ mod generic {
     #[test_case::case(Some(3), 5, false; "t3n5")]
     #[cfg_attr(feature = "hd-wallet", test_case::case(Some(3), 5, true; "t3n5-hd"))]
     #[tokio::test]
-    async fn signing_with_presigs<E: Curve, V>(t: Option<u16>, n: u16, hd_wallet: bool)
-    where
+    async fn signing_with_presigs<E: Curve, Hd: cggmp21::hd_wallet::HdWallet<E>, V>(
+        t: Option<u16>,
+        n: u16,
+        hd_wallet: bool,
+    ) where
         Point<E>: HasAffineX<E>,
         V: ExternalVerifier<E>,
     {
@@ -187,7 +190,10 @@ mod generic {
                 let presig = if let Some(derivation_path) = &derivation_path {
                     let epub = shares[0].extended_public_key().expect("not hd wallet");
                     presig
-                        .set_derivation_path(epub, derivation_path.iter().copied())
+                        .set_derivation_path_with_algo::<Hd, _>(
+                            epub,
+                            derivation_path.iter().copied(),
+                        )
                         .unwrap()
                 } else {
                     presig
@@ -203,9 +209,7 @@ mod generic {
         let public_key = if let Some(path) = &derivation_path {
             generic_ec::NonZero::from_point(
                 shares[0]
-                    .derive_child_public_key::<cggmp21::hd_wallet::Slip10Like, _>(
-                        path.iter().cloned(),
-                    )
+                    .derive_child_public_key::<Hd, _>(path.iter().cloned())
                     .unwrap()
                     .public_key,
             )
@@ -228,8 +232,11 @@ mod generic {
     #[test_case::case(Some(3), 5, false; "t3n5")]
     #[cfg_attr(feature = "hd-wallet", test_case::case(None, 3, true; "n3-hd"))]
     #[cfg_attr(feature = "hd-wallet", test_case::case(Some(3), 5, true; "t3n5-hd"))]
-    fn signing_sync<E: Curve, V>(t: Option<u16>, n: u16, hd_wallet: bool)
-    where
+    fn signing_sync<E: Curve, Hd: cggmp21::hd_wallet::HdWallet<E>, V>(
+        t: Option<u16>,
+        n: u16,
+        hd_wallet: bool,
+    ) where
         Point<E>: HasAffineX<E>,
         V: ExternalVerifier<E>,
     {
@@ -276,7 +283,9 @@ mod generic {
 
                 #[cfg(feature = "hd-wallet")]
                 let signing = if let Some(derivation_path) = derivation_path.clone() {
-                    signing.set_derivation_path(derivation_path).unwrap()
+                    signing
+                        .set_derivation_path_with_algo::<Hd, _>(derivation_path)
+                        .unwrap()
                 } else {
                     signing
                 };
@@ -296,9 +305,7 @@ mod generic {
         let public_key = if let Some(path) = &derivation_path {
             generic_ec::NonZero::from_point(
                 shares[0]
-                    .derive_child_public_key::<cggmp21::hd_wallet::Slip10Like, _>(
-                        path.iter().cloned(),
-                    )
+                    .derive_child_public_key::<Hd, _>(path.iter().cloned())
                     .unwrap()
                     .public_key,
             )
@@ -319,10 +326,22 @@ mod generic {
             .expect("external verification failed")
     }
 
-    #[instantiate_tests(<cggmp21::supported_curves::Secp256k1, cggmp21_tests::external_verifier::blockchains::Bitcoin>)]
+    #[instantiate_tests(<
+        cggmp21::supported_curves::Secp256k1,
+        cggmp21::hd_wallet::Slip10,
+        cggmp21_tests::external_verifier::blockchains::Bitcoin
+    >)]
     mod secp256k1 {}
-    #[instantiate_tests(<cggmp21::supported_curves::Secp256r1, cggmp21_tests::external_verifier::Noop>)]
+    #[instantiate_tests(<
+        cggmp21::supported_curves::Secp256r1,
+        cggmp21::hd_wallet::Slip10,
+        cggmp21_tests::external_verifier::Noop
+    >)]
     mod secp256r1 {}
-    #[instantiate_tests(<cggmp21::supported_curves::Stark, cggmp21_tests::external_verifier::blockchains::StarkNet>)]
+    #[instantiate_tests(<
+        cggmp21::supported_curves::Stark,
+        cggmp21::hd_wallet::Stark,
+        cggmp21_tests::external_verifier::blockchains::StarkNet
+    >)]
     mod stark {}
 }

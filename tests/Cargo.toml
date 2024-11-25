@@ -45,7 +45,7 @@ generic-tests = "0.1"
 test-case = "3"
 
 [features]
-hd-wallet = ["cggmp21/hd-wallet"]
+hd-wallet = ["cggmp21/hd-wallet", "cggmp21/hd-slip10", "cggmp21/hd-stark"]
 
 [[bin]]
 name = "precompute_shares"
