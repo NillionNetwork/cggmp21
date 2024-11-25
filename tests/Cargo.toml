@@ -43,6 +43,7 @@ url = "2.4"
 [dev-dependencies]
 generic-tests = "0.1"
 test-case = "3"
+criterion = "0.5"
 
 [features]
 hd-wallet = ["cggmp21/hd-wallet"]
@@ -53,3 +54,7 @@ required-features = ["hd-wallet"]
 
 [[bin]]
 name = "measure_perf"
+
+[[bench]]
+name = "exp"
+harness = false
