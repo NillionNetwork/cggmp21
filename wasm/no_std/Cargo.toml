@@ -15,3 +15,6 @@ path = "../../cggmp21-keygen"
 default-features = false
 features = ["hd-wallet", "state-machine"]
 
+[patch.crates-io.hd-wallet]
+git = "https://github.com/LFDT-Lockness/hd-wallet"
+branch = "dt"

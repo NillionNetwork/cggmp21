@@ -31,12 +31,13 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "cggmp21-keygen"
-version = "0.3.0"
+version = "0.5.0"
 dependencies = [
  "digest",
  "displaydoc",
  "generic-ec",
  "generic-ec-zkp",
+ "hd-wallet",
  "hex",
  "key-share",
  "rand_core",
@@ -44,7 +45,6 @@ dependencies = [
  "serde",
  "serde_with",
  "sha2",
- "slip-10",
  "udigest",
 ]
 
@@ -163,7 +163,6 @@ checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
 dependencies = [
  "block-buffer",
  "crypto-common",
- "subtle",
 ]
 
 [[package]]
@@ -304,21 +303,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "hd-wallet"
+version = "0.6.0"
+source = "git+https://github.com/LFDT-Lockness/hd-wallet?branch=dt#158b65ce54ed6d0d031a9414890b4a9170dd4f11"
+dependencies = [
+ "generic-ec",
+]
+
+[[package]]
 name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "hmac"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c49c37c09c17a53d937dfbb742eb3a961d65a994e6bcdcf37e7399d0cc8ab5e"
-dependencies = [
- "digest",
 ]
 
 [[package]]
@@ -335,16 +333,16 @@ checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
 name = "key-share"
-version = "0.4.1"
+version = "0.6.0"
 dependencies = [
  "displaydoc",
  "generic-ec",
  "generic-ec-zkp",
+ "hd-wallet",
  "hex",
  "rand_core",
  "serde",
  "serde_with",
- "slip-10",
  "udigest",
 ]
 
@@ -578,19 +576,6 @@ dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest",
-]
-
-[[package]]
-name = "slip-10"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10c50b6de806a216bce1d98e9107e03f60b54abcfbe6be3935a528ab57c19f6a"
-dependencies = [
- "generic-array",
- "generic-ec",
- "hmac",
- "sha2",
- "subtle",
 ]
 
 [[package]]
