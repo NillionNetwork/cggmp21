@@ -1292,8 +1292,10 @@ impl<E: Curve> Presignature<E> {
     /// assoicated with the key share that was used to generate presignature.
     /// Using wrong `epub` will simply lead to invalid signature.
     ///
-    /// For HD derivation, uses [`hd_wallet::Slip10Like`] algorithm. If you need to
-    /// use another derivation algorithm, see [`set_derivation_path_with_algo`](Self::set_derivation_path_with_algo)
+    /// ## Derivation algorithm
+    /// This method uses [`hd_wallet::Slip10`] derivation algorithm, which can only be used with secp256k1
+    /// and secp256r1 curves. If you need to use another one, see
+    /// [`set_derivation_path_with_algo`](Self::set_derivation_path_with_algo)
     #[cfg(all(feature = "hd-wallet", feature = "hd-slip10"))]
     pub fn set_derivation_path<Index>(
         self,

@@ -102,7 +102,7 @@ jobs:
       with:
         cache-on-failure: "true"
     - name: Check docs
-      run: RUSTDOCFLAGS="--cfg docsrs -D warnings" cargo +nightly doc --workspace --all-features --no-deps
+      run: RUSTDOCFLAGS="-D warnings" cargo doc --workspace --all-features --no-deps
 
   bench:
     runs-on: ubuntu-latest
