@@ -14,11 +14,7 @@ use cggmp21::{security_level::SecurityLevel128, ExecutionId};
 
 cggmp21_tests::test_suite! {
     async_test = signing_works,
-    generics = [
-        secp256k1 = <cggmp21::supported_curves::Secp256k1>,
-        secp256r1 = <cggmp21::supported_curves::Secp256r1>,
-        stark = <cggmp21::supported_curves::Stark>,
-    ],
+    generics = all_curves,
     suites = [
         n2(None, 2, false, false),
         n2_reliable(None, 2, true, false),
@@ -130,11 +126,7 @@ where
 
 cggmp21_tests::test_suite! {
     async_test = signing_with_presigs,
-    generics = [
-        secp256k1 = <cggmp21::supported_curves::Secp256k1>,
-        secp256r1 = <cggmp21::supported_curves::Secp256r1>,
-        stark = <cggmp21::supported_curves::Stark>,
-    ],
+    generics = all_curves,
     suites = [
         t3n5(Some(3), 5, false),
         #[cfg(feature = "hd-wallet")]
@@ -246,11 +238,7 @@ where
 
 cggmp21_tests::test_suite! {
     test = signing_sync,
-    generics = [
-        secp256k1 = <cggmp21::supported_curves::Secp256k1>,
-        secp256r1 = <cggmp21::supported_curves::Secp256r1>,
-        stark = <cggmp21::supported_curves::Stark>,
-    ],
+    generics = all_curves,
     suites = [
         n3(None, 3, false),
         t3n5(Some(3), 5, false),
