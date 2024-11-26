@@ -259,12 +259,12 @@ macro_rules! test_suite_traverse {
                 generics = <$($generic),+>,
                 suites = [$($suites)*]
             }
-            $crate::test_suite_traverse! {
-                $(async_test = $async_test,)?
-                $(test = $test,)?
-                generics = [$($($generics_rest)*)?],
-                suites = [$($suites)*]
-            }
+        }
+        $crate::test_suite_traverse! {
+            $(async_test = $async_test,)?
+            $(test = $test,)?
+            generics = [$($($generics_rest)*)?],
+            suites = [$($suites)*]
         }
     };
     (
