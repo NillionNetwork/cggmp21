@@ -213,7 +213,7 @@ macro_rules! test_suite {
             use super::$test;
             $crate::test_suite_traverse! {
                 async_test = $test,
-                generics_list = [$($gmod = <$($generic),+>),+],
+                generics = [$($gmod = <$($generic),+>),+],
                 suites = [$($suites)*]
             }
         }
@@ -229,7 +229,7 @@ macro_rules! test_suite {
             use super::$test;
             $crate::test_suite_traverse! {
                 test = $test,
-                generics_list = [$($gmod = <$($generic),+>),+],
+                generics = [$($gmod = <$($generic),+>),+],
                 suites = [$($suites)*]
             }
         }
@@ -242,8 +242,8 @@ macro_rules! test_suite_traverse {
     // --- Async Test Function
     (
         async_test = $test:ident,
-        // we traverse over `generics_list`
-        generics_list = [$gmod:ident = <$($generic:path),*>$(, $($generics_rest:tt)*)?],
+        // we traverse over `generics`
+        generics = [$gmod:ident = <$($generic:path),*>$(, $($generics_rest:tt)*)?],
         suites = [$($suites:tt)*]
     ) => {
         mod $gmod {
@@ -255,15 +255,15 @@ macro_rules! test_suite_traverse {
             }
             $crate::test_suite_traverse! {
                 async_test = $test,
-                generics_list = [$($($generics_rest)*)?],
+                generics = [$($($generics_rest)*)?],
                 suites = [$($suites)*]
             }
         }
     };
     (
         async_test = $test:ident,
-        // generics_list is empty - nothing to traverse
-        generics_list = [],
+        // generics list is empty - nothing to traverse
+        generics = [],
         suites = [$($suites:tt)*]
     ) => {};
 
@@ -271,30 +271,13 @@ macro_rules! test_suite_traverse {
         async_test = $test:ident,
         generics = <$($generic:path),*>,
         // we traverse suites
-        suites = [$suite_name:ident($($args:tt)*)$(, $($rest:tt)*)?]
-    ) => {
-        #[tokio::test]
-        async fn $suite_name() {
-            $test::<$($generic),+>($($args)*).await
-        }
-
-        $crate::test_suite_traverse! {
-            async_test = $test,
-            generics = <$($generic),*>,
-            suites = [$($($rest)*)?]
-        }
-    };
-    (
-        async_test = $test:ident,
-        generics = <$($generic:path),*>,
-        // we traverse suites, the next suite has extra attrs
         suites = [
-            $(#[$attr:meta])+
+            $(#[$attr:meta])*
             $suite_name:ident($($args:tt)*)
             $(, $($rest:tt)*)?
         ]
     ) => {
-        $(#[$attr])+
+        $(#[$attr])*
         #[tokio::test]
         async fn $suite_name() {
             $test::<$($generic),+>($($args)*).await
@@ -316,8 +299,8 @@ macro_rules! test_suite_traverse {
     // --- Sync Test Function
     (
         test = $test:ident,
-        // we traverse over `generics_list`
-        generics_list = [$gmod:ident = <$($generic:path),*>$(, $($generics_rest:tt)*)?],
+        // we traverse over `generics`
+        generics = [$gmod:ident = <$($generic:path),*>$(, $($generics_rest:tt)*)?],
         suites = [$($suites:tt)*]
     ) => {
         mod $gmod {
@@ -329,15 +312,15 @@ macro_rules! test_suite_traverse {
             }
             $crate::test_suite_traverse! {
                 test = $test,
-                generics_list = [$($($generics_rest)*)?],
+                generics = [$($($generics_rest)*)?],
                 suites = [$($suites)*]
             }
         }
     };
     (
         test = $test:ident,
-        // generics_list is empty - nothing to traverse
-        generics_list = [],
+        // generics list is empty - nothing to traverse
+        generics = [],
         suites = [$($suites:tt)*]
     ) => {};
 
@@ -345,30 +328,13 @@ macro_rules! test_suite_traverse {
         test = $test:ident,
         generics = <$($generic:path),*>,
         // we traverse suites
-        suites = [$suite_name:ident($($args:tt)*)$(, $($rest:tt)*)?]
-    ) => {
-        #[test]
-        fn $suite_name() {
-            $test::<$($generic),+>($($args)*)
-        }
-
-        $crate::test_suite_traverse! {
-            test = $test,
-            generics = <$($generic),*>,
-            suites = [$($($rest)*)?]
-        }
-    };
-    (
-        test = $test:ident,
-        generics = <$($generic:path),*>,
-        // we traverse suites, the next suite has extra attrs
         suites = [
-            $(#[$attr:meta])+
+            $(#[$attr:meta])*
             $suite_name:ident($($args:tt)*)
             $(, $($rest:tt)*)?
         ]
     ) => {
-        $(#[$attr])+
+        $(#[$attr])*
         #[test]
         fn $suite_name() {
             $test::<$($generic),+>($($args)*)
