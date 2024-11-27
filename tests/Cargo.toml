@@ -39,10 +39,6 @@ starknet-providers = { version = "0.6" }
 starknet-signers = { version = "0.4" }
 url = "2.4"
 
-[dev-dependencies]
-generic-tests = "0.1"
-test-case = "3"
-
 [features]
 hd-wallet = ["cggmp21/hd-wallet", "cggmp21/hd-slip10", "cggmp21/hd-stark"]
 
