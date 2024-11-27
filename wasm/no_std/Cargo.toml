@@ -18,3 +18,7 @@ features = ["hd-wallet", "state-machine"]
 [patch.crates-io.hd-wallet]
 git = "https://github.com/LFDT-Lockness/hd-wallet"
 branch = "dt"
+
+[patch.crates-io.round-based]
+git = "https://github.com/LFDT-Lockness/round-based"
+branch = "impr-sim"
