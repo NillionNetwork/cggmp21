@@ -38,7 +38,7 @@ hex = { workspace = true, default-features = false, features = ["serde"] }
 hd-wallet = { workspace = true, optional = true, features = ["std"] }
 
 [dev-dependencies]
-round-based = { workspace = true, features = ["derive", "dev"] }
+round-based = { workspace = true, features = ["derive", "sim"] }
 
 rand = { workspace = true }
 rand_dev = { workspace = true }

@@ -1,13 +1,11 @@
-use cggmp21::{key_share::AnyKeyShare, security_level::SecurityLevel128, signing::msg::Msg};
+use cggmp21::{key_share::AnyKeyShare, security_level::SecurityLevel128};
 use cggmp21_tests::{convert_from_stark_scalar, convert_stark_scalar};
 use generic_ec::{coords::HasAffineX, curves::Stark};
 use rand::{seq::SliceRandom, Rng};
 use rand_dev::DevRng;
-use round_based::simulation::Simulation;
-use sha2::Sha256;
 
-#[tokio::test]
-async fn sign_transaction() {
+#[test]
+fn sign_transaction() {
     let mut rng = DevRng::new();
     let t = Some(2);
     let n = 3;
@@ -15,8 +13,6 @@ async fn sign_transaction() {
     let shares = cggmp21_tests::CACHED_SHARES
         .get_shares::<Stark, SecurityLevel128>(t, n, false)
         .expect("retrieve cached shares");
-
-    let mut simulation = Simulation::<Msg<Stark, Sha256>>::new();
 
     let eid: [u8; 32] = rng.gen();
     let eid = cggmp21::ExecutionId::new(&eid);
@@ -74,33 +70,28 @@ async fn sign_transaction() {
     println!("Signers: {participants:?}");
     let participants_shares = participants.iter().map(|i| &shares[usize::from(*i)]);
 
-    let mut outputs = vec![];
-    for (i, share) in (0..).zip(participants_shares) {
-        let party = simulation.add_party();
+    let sig = round_based::simulation::run_with_setup(participants_shares, |i, party, share| {
         let mut party_rng = rng.fork();
 
-        outputs.push(async move {
+        async move {
             cggmp21::signing(eid, i, participants, share)
                 .sign(&mut party_rng, party, cggmp_transaction_hash)
                 .await
-        });
-    }
-
-    let signatures = futures::future::try_join_all(outputs)
-        .await
-        .expect("signing failed");
+        }
+    })
+    .unwrap()
+    .expect_ok()
+    .expect_eq();
 
     // verify with our lib
-    signatures[0]
-        .verify(&shares[0].core.shared_public_key, &cggmp_transaction_hash)
+    sig.verify(&shares[0].core.shared_public_key, &cggmp_transaction_hash)
         .expect("signature is not valid");
-    assert!(signatures.iter().all(|s_i| signatures[0] == *s_i));
 
     // verify with starknet lib
     let public_key_x = shares[0].core.shared_public_key.x().unwrap().to_scalar();
     let public_key = convert_stark_scalar(&public_key_x).unwrap();
-    let r = convert_stark_scalar(&signatures[0].r).unwrap();
-    let s = convert_stark_scalar(&signatures[0].s).unwrap();
+    let r = convert_stark_scalar(&sig.r).unwrap();
+    let s = convert_stark_scalar(&sig.s).unwrap();
 
     let r = starknet_crypto::verify(&public_key, &transaction_hash, &r, &s).unwrap();
     assert!(r, "failed to verify signature");

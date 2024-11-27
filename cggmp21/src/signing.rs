@@ -96,7 +96,7 @@ pub struct PartialSignature<E: Curve> {
 }
 
 /// ECDSA signature
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Debug)]
 #[serde(bound = "")]
 pub struct Signature<E: Curve> {
     /// $r$ component of signature

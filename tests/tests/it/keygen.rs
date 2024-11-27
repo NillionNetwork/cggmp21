@@ -5,13 +5,8 @@ mod generic {
     use generic_ec::{Curve, Point};
     use rand::{seq::SliceRandom, Rng};
     use rand_dev::DevRng;
-    use round_based::simulation::{Simulation, SimulationSync};
-    use sha2::Sha256;
 
-    use cggmp21::keygen::{NonThresholdMsg, ThresholdMsg};
-    use cggmp21::{
-        key_share::reconstruct_secret_key, security_level::SecurityLevel128, ExecutionId,
-    };
+    use cggmp21::{key_share::reconstruct_secret_key, ExecutionId};
 
     #[test_case::case(3, false, false; "n3")]
     #[test_case::case(5, false, false; "n5")]
@@ -22,37 +17,31 @@ mod generic {
     #[cfg_attr(feature = "hd-wallet", test_case::case(5, false, true; "n5-hd"))]
     #[cfg_attr(feature = "hd-wallet", test_case::case(7, false, true; "n7-hd"))]
     #[cfg_attr(feature = "hd-wallet", test_case::case(10, false, true; "n10-hd"))]
-    #[tokio::test]
-    async fn keygen_works<E: Curve>(n: u16, reliable_broadcast: bool, hd_wallet: bool) {
+    fn keygen_works<E: Curve>(n: u16, reliable_broadcast: bool, hd_wallet: bool) {
         #[cfg(not(feature = "hd-wallet"))]
         assert!(!hd_wallet);
 
         let mut rng = DevRng::new();
 
-        let mut simulation = Simulation::<NonThresholdMsg<E, SecurityLevel128, Sha256>>::new();
-
         let eid: [u8; 32] = rng.gen();
         let eid = ExecutionId::new(&eid);
 
-        let mut outputs = vec![];
-        for i in 0..n {
-            let party = simulation.add_party();
+        let key_shares = round_based::simulation::run(n, |i, party| {
             let mut party_rng = rng.fork();
 
-            outputs.push(async move {
+            async move {
                 let keygen =
-                    cggmp21::keygen(eid, i, n).enforce_reliable_broadcast(reliable_broadcast);
+                    cggmp21::keygen::<E>(eid, i, n).enforce_reliable_broadcast(reliable_broadcast);
 
                 #[cfg(feature = "hd-wallet")]
                 let keygen = keygen.hd_wallet(hd_wallet);
 
                 keygen.start(&mut party_rng, party).await
-            })
-        }
-
-        let key_shares = futures::future::try_join_all(outputs)
-            .await
-            .expect("keygen failed");
+            }
+        })
+        .unwrap()
+        .expect_ok()
+        .into_vec();
 
         validate_keygen_output(&mut rng, &key_shares, hd_wallet);
     }
@@ -62,30 +51,20 @@ mod generic {
     #[test_case::case(3, 5, true, false; "t3n5-reliable")]
     #[cfg_attr(feature = "hd-wallet", test_case::case(2, 3, false, true; "t2n3-hd"))]
     #[cfg_attr(feature = "hd-wallet", test_case::case(3, 5, false, true; "t3n5-hd"))]
-    #[tokio::test]
-    async fn threshold_keygen_works<E: Curve>(
-        t: u16,
-        n: u16,
-        reliable_broadcast: bool,
-        hd_wallet: bool,
-    ) {
+    fn threshold_keygen_works<E: Curve>(t: u16, n: u16, reliable_broadcast: bool, hd_wallet: bool) {
         #[cfg(not(feature = "hd-wallet"))]
         assert!(!hd_wallet);
 
         let mut rng = DevRng::new();
 
-        let mut simulation = Simulation::<ThresholdMsg<E, SecurityLevel128, Sha256>>::new();
-
         let eid: [u8; 32] = rng.gen();
         let eid = ExecutionId::new(&eid);
 
-        let mut outputs = vec![];
-        for i in 0..n {
-            let party = simulation.add_party();
+        let key_shares = round_based::simulation::run(n, |i, party| {
             let mut party_rng = rng.fork();
 
-            outputs.push(async move {
-                let keygen = cggmp21::keygen(eid, i, n)
+            async move {
+                let keygen = cggmp21::keygen::<E>(eid, i, n)
                     .enforce_reliable_broadcast(reliable_broadcast)
                     .set_threshold(t);
 
@@ -93,12 +72,11 @@ mod generic {
                 let keygen = keygen.hd_wallet(hd_wallet);
 
                 keygen.start(&mut party_rng, party).await
-            })
-        }
-
-        let key_shares = futures::future::try_join_all(outputs)
-            .await
-            .expect("keygen failed");
+            }
+        })
+        .unwrap()
+        .expect_ok()
+        .into_vec();
 
         validate_keygen_output(&mut rng, &key_shares, hd_wallet);
     }
@@ -118,7 +96,7 @@ mod generic {
             .take(n.into())
             .collect::<Vec<_>>();
 
-        let mut simulation = SimulationSync::with_capacity(n);
+        let mut simulation = round_based::simulation::Simulation::with_capacity(n);
         for (i, party_rng) in (0..).zip(&mut party_rng) {
             simulation.add_party({
                 let keygen = cggmp21::keygen::<E>(eid, i, n).set_threshold(t);
@@ -132,6 +110,7 @@ mod generic {
         let key_shares = simulation
             .run()
             .unwrap()
+            .into_vec()
             .into_iter()
             .collect::<Result<Vec<_>, _>>()
             .unwrap();

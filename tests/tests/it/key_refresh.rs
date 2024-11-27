@@ -3,7 +3,6 @@ mod generic {
     use generic_ec::Point;
     use rand::seq::SliceRandom;
     use rand::Rng;
-    use round_based::simulation::Simulation;
     use sha2::Sha256;
 
     use cggmp21::{
@@ -15,8 +14,7 @@ mod generic {
     #[test_case::case(3, false; "n3")]
     #[test_case::case(5, false; "n5")]
     #[test_case::case(5, true; "n5-reliable")]
-    #[tokio::test]
-    async fn key_refresh_works<E: generic_ec::Curve>(n: u16, reliable_broadcast: bool)
+    fn key_refresh_works<E: generic_ec::Curve>(n: u16, reliable_broadcast: bool)
     where
         Point<E>: generic_ec::coords::HasAffineX<E>,
     {
@@ -29,16 +27,14 @@ mod generic {
         #[cfg(feature = "hd-wallet")]
         assert!(shares[0].chain_code.is_some());
 
-        let mut primes = cggmp21_tests::CACHED_PRIMES.iter();
+        let mut primes = cggmp21_tests::CACHED_PRIMES.iter::<SecurityLevel128>();
 
         // Perform refresh
 
         let eid: [u8; 32] = rng.gen();
         let eid = ExecutionId::new(&eid);
-        let mut simulation =
-            Simulation::<cggmp21::key_refresh::NonThresholdMsg<E, Sha256, SecurityLevel128>>::new();
-        let outputs = shares.iter().map(|share| {
-            let party = simulation.add_party();
+
+        let key_shares = round_based::simulation::run_with_setup(&shares, |_i, party, share| {
             let mut party_rng = rng.fork();
             let pregenerated_data = primes.next().expect("Can't fetch primes");
             async move {
@@ -47,11 +43,10 @@ mod generic {
                     .start(&mut party_rng, party)
                     .await
             }
-        });
-
-        let key_shares = futures::future::try_join_all(outputs)
-            .await
-            .expect("keygen failed");
+        })
+        .unwrap()
+        .expect_ok()
+        .into_vec();
 
         // validate key shares
 
@@ -89,15 +84,12 @@ mod generic {
 
         // attempt to sign with new shares and verify the signature
 
-        let mut simulation = Simulation::<cggmp21::signing::msg::Msg<E, Sha256>>::new();
-
         let eid: [u8; 32] = rng.gen();
         let eid = ExecutionId::new(&eid);
 
         let message_to_sign = cggmp21::signing::DataToSign::digest::<Sha256>(&[42; 100]);
         let participants = &(0..n).collect::<Vec<_>>();
-        let outputs = key_shares.iter().map(|share| {
-            let party = simulation.add_party();
+        let sig = round_based::simulation::run_with_setup(&key_shares, |_i, party, share| {
             let mut party_rng = rng.fork();
             async move {
                 cggmp21::signing(eid, share.core.i, participants, share)
@@ -105,23 +97,19 @@ mod generic {
                     .sign(&mut party_rng, party, message_to_sign)
                     .await
             }
-        });
-        let signatures = futures::future::try_join_all(outputs)
-            .await
-            .expect("signing failed");
+        })
+        .unwrap()
+        .expect_ok()
+        .expect_eq();
 
-        for signature in &signatures {
-            signature
-                .verify(&key_shares[0].core.shared_public_key, &message_to_sign)
-                .expect("signature is not valid");
-        }
+        sig.verify(&key_shares[0].core.shared_public_key, &message_to_sign)
+            .expect("signature is not valid");
     }
 
     #[test_case::case(2, 3, false; "t2n3")]
     #[test_case::case(3, 5, false; "t3n5")]
     #[test_case::case(3, 5, true; "t3n5-reliable")]
-    #[tokio::test]
-    async fn aux_gen_works<E: generic_ec::Curve>(t: u16, n: u16, reliable_broadcast: bool)
+    fn aux_gen_works<E: generic_ec::Curve>(t: u16, n: u16, reliable_broadcast: bool)
     where
         Point<E>: generic_ec::coords::HasAffineX<E>,
     {
@@ -130,18 +118,14 @@ mod generic {
         let shares = cggmp21_tests::CACHED_SHARES
             .get_shares::<E, SecurityLevel128>(Some(t), n, false)
             .expect("retrieve cached shares");
-        let mut primes = cggmp21_tests::CACHED_PRIMES.iter();
+        let mut primes = cggmp21_tests::CACHED_PRIMES.iter::<SecurityLevel128>();
 
         // Perform refresh
-
-        let mut simulation =
-            Simulation::<cggmp21::key_refresh::AuxOnlyMsg<Sha256, SecurityLevel128>>::new();
 
         let eid: [u8; 32] = rng.gen();
         let eid = ExecutionId::new(&eid);
 
-        let outputs = (0..n).map(|i| {
-            let party = simulation.add_party();
+        let aux_infos = round_based::simulation::run(n, |i, party| {
             let mut party_rng = rng.fork();
             let pregenerated_data = primes.next().expect("Can't fetch primes");
             async move {
@@ -150,11 +134,10 @@ mod generic {
                     .start(&mut party_rng, party)
                     .await
             }
-        });
-
-        let aux_infos = futures::future::try_join_all(outputs)
-            .await
-            .expect("keygen failed");
+        })
+        .unwrap()
+        .expect_ok()
+        .into_vec();
 
         // validate key shares
 
@@ -173,8 +156,6 @@ mod generic {
 
         // attempt to sign with new shares and verify the signature
 
-        let mut simulation = Simulation::<cggmp21::signing::msg::Msg<E, Sha256>>::new();
-
         let eid: [u8; 32] = rng.gen();
         let eid = ExecutionId::new(&eid);
 
@@ -187,25 +168,22 @@ mod generic {
         println!("Signers: {participants:?}");
         let participants_shares = participants.iter().map(|i| &key_shares[usize::from(*i)]);
 
-        let outputs = participants_shares.zip(0..).map(|(share, i)| {
-            let party = simulation.add_party();
-            let mut party_rng = rng.fork();
-            async move {
-                cggmp21::signing(eid, i, participants, share)
-                    .enforce_reliable_broadcast(reliable_broadcast)
-                    .sign(&mut party_rng, party, message_to_sign)
-                    .await
-            }
-        });
-        let signatures = futures::future::try_join_all(outputs)
-            .await
-            .expect("signing failed");
+        let sig =
+            round_based::simulation::run_with_setup(participants_shares, |i, party, share| {
+                let mut party_rng = rng.fork();
+                async move {
+                    cggmp21::signing(eid, i, participants, share)
+                        .enforce_reliable_broadcast(reliable_broadcast)
+                        .sign(&mut party_rng, party, message_to_sign)
+                        .await
+                }
+            })
+            .unwrap()
+            .expect_ok()
+            .expect_eq();
 
-        for signature in &signatures {
-            signature
-                .verify(&key_shares[0].core.shared_public_key, &message_to_sign)
-                .expect("signature is not valid");
-        }
+        sig.verify(&key_shares[0].core.shared_public_key, &message_to_sign)
+            .expect("signature is not valid");
     }
 
     #[instantiate_tests(<cggmp21::supported_curves::Secp256r1>)]

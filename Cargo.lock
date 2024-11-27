@@ -342,7 +342,6 @@ dependencies = [
  "starknet-providers",
  "starknet-signers",
  "test-case",
- "tokio",
  "url",
 ]
 
@@ -1815,25 +1814,21 @@ dependencies = [
 
 [[package]]
 name = "round-based"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55f473f56ecfa6457a75c0922c4e51ad036d4a1d27b0a697ac3a9b26f74acc3b"
+version = "0.4.0"
+source = "git+https://github.com/LFDT-Lockness/round-based?branch=impr-sim#e662e7142eb3c5d96f3202c6cc7f853a2db0486b"
 dependencies = [
  "displaydoc",
  "futures-util",
  "phantom-type 0.3.1",
  "round-based-derive",
  "thiserror",
- "tokio",
- "tokio-stream",
  "tracing",
 ]
 
 [[package]]
 name = "round-based-derive"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c3f220fb17bab108a448f516ce4ec470584675233ab3a799915ba71295da32e"
+version = "0.2.2"
+source = "git+https://github.com/LFDT-Lockness/round-based?branch=impr-sim#e662e7142eb3c5d96f3202c6cc7f853a2db0486b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2448,19 +2443,7 @@ dependencies = [
  "mio",
  "pin-project-lite",
  "socket2",
- "tokio-macros",
  "winapi",
-]
-
-[[package]]
-name = "tokio-macros"
-version = "1.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d266c00fde287f55d3f1c3e96c500c362a2b8c695076ec180f27918820bc6df8"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.101",
 ]
 
 [[package]]
@@ -2471,18 +2454,6 @@ checksum = "c28327cf380ac148141087fbfb9de9d7bd4e84ab5d2c28fbc911d753de8a7081"
 dependencies = [
  "rustls",
  "tokio",
-]
-
-[[package]]
-name = "tokio-stream"
-version = "0.1.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6edf2d6bc038a43d31353570e27270603f4648d18f5ed10c0e179abe43255af"
-dependencies = [
- "futures-core",
- "pin-project-lite",
- "tokio",
- "tokio-util",
 ]
 
 [[package]]
