@@ -39,7 +39,7 @@ where
     let eid: [u8; 32] = rng.gen();
     let eid = ExecutionId::new(&eid);
 
-    round_based::simulation::run(n, |i, party| {
+    round_based::sim::run(n, |i, party| {
         let mut party_rng = rng.fork();
 
         async move {
@@ -66,7 +66,7 @@ where
     let eid: [u8; 32] = rng.gen();
     let eid = ExecutionId::new(&eid);
 
-    let aux_infos = round_based::simulation::run(n, |i, party| {
+    let aux_infos = round_based::sim::run(n, |i, party| {
         let mut party_rng = rng.fork();
         let pregenerated_data = primes.next().expect("Can't fetch primes");
         async move {
@@ -120,7 +120,7 @@ where
     println!("Signers: {participants:?}");
     let participants_shares = participants.iter().map(|i| &shares[usize::from(*i)]);
 
-    let sig = round_based::simulation::run_with_setup(participants_shares, |i, party, share| {
+    let sig = round_based::sim::run_with_setup(participants_shares, |i, party, share| {
         let mut party_rng = rng.fork();
 
         #[cfg(feature = "hd-wallet")]

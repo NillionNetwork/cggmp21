@@ -45,10 +45,3 @@ hd-wallet = { version = "0.6", default-features = false }
 
 generic-tests = "0.1"
 
-[patch.crates-io.hd-wallet]
-git = "https://github.com/LFDT-Lockness/hd-wallet"
-branch = "dt"
-
-[patch.crates-io.round-based]
-git = "https://github.com/LFDT-Lockness/round-based"
-branch = "impr-sim"

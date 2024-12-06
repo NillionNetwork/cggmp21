@@ -34,6 +34,6 @@ thiserror = { workspace = true, optional = true }
 [features]
 default = ["std"]
 
-std = ["thiserror", "key-share/std", "udigest/std", "round-based/std"]
+std = ["thiserror", "key-share/std", "udigest/std"]
 hd-wallet = ["dep:hd-wallet", "key-share/hd-wallet"]
 state-machine = ["round-based/state-machine"]

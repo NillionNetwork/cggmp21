@@ -34,7 +34,7 @@ fn keygen_works<E: Curve>(n: u16, reliable_broadcast: bool, hd_wallet: bool) {
     let eid: [u8; 32] = rng.gen();
     let eid = ExecutionId::new(&eid);
 
-    let key_shares = round_based::simulation::run(n, |i, party| {
+    let key_shares = round_based::sim::run(n, |i, party| {
         let mut party_rng = rng.fork();
 
         async move {
@@ -76,7 +76,7 @@ fn threshold_keygen_works<E: Curve>(t: u16, n: u16, reliable_broadcast: bool, hd
     let eid: [u8; 32] = rng.gen();
     let eid = ExecutionId::new(&eid);
 
-    let key_shares = round_based::simulation::run(n, |i, party| {
+    let key_shares = round_based::sim::run(n, |i, party| {
         let mut party_rng = rng.fork();
 
         async move {
@@ -119,7 +119,7 @@ fn threshold_keygen_sync_works<E: Curve>(t: u16, n: u16, hd_wallet: bool) {
         .take(n.into())
         .collect::<Vec<_>>();
 
-    let mut simulation = round_based::simulation::Simulation::with_capacity(n);
+    let mut simulation = round_based::sim::Simulation::with_capacity(n);
     for (i, party_rng) in (0..).zip(&mut party_rng) {
         simulation.add_party({
             let keygen = cggmp21::keygen::<E>(eid, i, n).set_threshold(t);

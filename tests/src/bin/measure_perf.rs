@@ -86,7 +86,7 @@ fn do_becnhmarks<L: SecurityLevel>(args: Args) {
                 let eid: [u8; 32] = rng.gen();
                 let eid = ExecutionId::new(&eid);
 
-                let outputs = round_based::simulation::run(n, |i, party| {
+                let outputs = round_based::sim::run(n, |i, party| {
                     let mut party_rng = rng.fork();
 
                     let mut profiler = PerfProfiler::new();
@@ -124,7 +124,7 @@ fn do_becnhmarks<L: SecurityLevel>(args: Args) {
                 let eid: [u8; 32] = rng.gen();
                 let eid = ExecutionId::new(&eid);
 
-                let outputs = round_based::simulation::run(n, |i, party| {
+                let outputs = round_based::sim::run(n, |i, party| {
                     let mut party_rng = rng.fork();
 
                     let mut profiler = PerfProfiler::new();
@@ -161,7 +161,7 @@ fn do_becnhmarks<L: SecurityLevel>(args: Args) {
 
                 let mut primes = cggmp21_tests::CACHED_PRIMES.iter::<L>();
 
-                let outputs = round_based::simulation::run(n, |i, party| {
+                let outputs = round_based::sim::run(n, |i, party| {
                     let mut party_rng = rng.fork();
                     let pregen = primes.next().expect("Can't get pregenerated prime");
 
@@ -242,24 +242,23 @@ fn do_becnhmarks<L: SecurityLevel>(args: Args) {
             let message_to_sign = b"Dfns rules!";
             let message_to_sign = DataToSign::digest::<Sha256>(message_to_sign);
 
-            let perf_reports =
-                round_based::simulation::run_with_setup(&shares, |i, party, share| {
-                    let mut party_rng = rng.fork();
+            let perf_reports = round_based::sim::run_with_setup(&shares, |i, party, share| {
+                let mut party_rng = rng.fork();
 
-                    let mut profiler = PerfProfiler::new();
+                let mut profiler = PerfProfiler::new();
 
-                    async move {
-                        let _signature = cggmp21::signing(eid, i, signers_indexes_at_keygen, share)
-                            .set_progress_tracer(&mut profiler)
-                            .sign(&mut party_rng, party, message_to_sign)
-                            .await
-                            .context("signing failed")?;
-                        profiler.get_report().context("get perf report")
-                    }
-                })
-                .unwrap()
-                .expect_ok()
-                .into_vec();
+                async move {
+                    let _signature = cggmp21::signing(eid, i, signers_indexes_at_keygen, share)
+                        .set_progress_tracer(&mut profiler)
+                        .sign(&mut party_rng, party, message_to_sign)
+                        .await
+                        .context("signing failed")?;
+                    profiler.get_report().context("get perf report")
+                }
+            })
+            .unwrap()
+            .expect_ok()
+            .into_vec();
 
             println!("Signing protocol");
             println!("{}", perf_reports[0].clone().display_io(false));

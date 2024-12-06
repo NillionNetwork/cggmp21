@@ -70,7 +70,7 @@ fn sign_transaction() {
     println!("Signers: {participants:?}");
     let participants_shares = participants.iter().map(|i| &shares[usize::from(*i)]);
 
-    let sig = round_based::simulation::run_with_setup(participants_shares, |i, party, share| {
+    let sig = round_based::sim::run_with_setup(participants_shares, |i, party, share| {
         let mut party_rng = rng.fork();
 
         async move {

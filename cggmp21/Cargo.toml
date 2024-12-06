@@ -35,7 +35,7 @@ serde = { workspace = true, features = ["derive", "rc"] }
 serde_with = { workspace = true }
 hex = { workspace = true, default-features = false, features = ["serde"] }
 
-hd-wallet = { workspace = true, optional = true, features = ["std"] }
+hd-wallet = { workspace = true, optional = true }
 
 [dev-dependencies]
 round-based = { workspace = true, features = ["derive", "sim"] }

@@ -67,7 +67,7 @@ where
     println!("Signers: {participants:?}");
     let participants_shares = participants.iter().map(|i| &shares[usize::from(*i)]);
 
-    let sig = round_based::simulation::run_with_setup(participants_shares, |i, party, share| {
+    let sig = round_based::sim::run_with_setup(participants_shares, |i, party, share| {
         let mut party_rng = rng.fork();
 
         let signing = cggmp21::signing(eid, i, participants, share)
@@ -146,19 +146,18 @@ where
 
     let participants_shares = participants.iter().map(|i| &shares[usize::from(*i)]);
 
-    let presigs =
-        round_based::simulation::run_with_setup(participants_shares, |i, party, share| {
-            let mut party_rng = rng.fork();
+    let presigs = round_based::sim::run_with_setup(participants_shares, |i, party, share| {
+        let mut party_rng = rng.fork();
 
-            async move {
-                cggmp21::signing(eid, i, participants, share)
-                    .generate_presignature(&mut party_rng, party)
-                    .await
-            }
-        })
-        .unwrap()
-        .expect_ok()
-        .into_vec();
+        async move {
+            cggmp21::signing(eid, i, participants, share)
+                .generate_presignature(&mut party_rng, party)
+                .await
+        }
+    })
+    .unwrap()
+    .expect_ok()
+    .into_vec();
 
     // Now, that we have presignatures generated, we learn (generate) a messages to sign
     // and the derivation path (if hd is enabled)
@@ -271,7 +270,7 @@ where
         .take(n.into())
         .collect::<Vec<_>>();
 
-    let mut simulation = round_based::simulation::Simulation::with_capacity(n);
+    let mut simulation = round_based::sim::Simulation::with_capacity(n);
 
     for ((i, share), signer_rng) in (0..).zip(participants_shares).zip(&mut signer_rng) {
         simulation.add_party({
