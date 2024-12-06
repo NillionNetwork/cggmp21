@@ -39,6 +39,9 @@ starknet-providers = { version = "0.6" }
 starknet-signers = { version = "0.4" }
 url = "2.4"
 
+[dev-dependencies]
+criterion = "0.5"
+
 [features]
 hd-wallet = ["cggmp21/hd-wallet", "cggmp21/hd-slip10", "cggmp21/hd-stark"]
 
@@ -48,3 +51,7 @@ required-features = ["hd-wallet"]
 
 [[bin]]
 name = "measure_perf"
+
+[[bench]]
+name = "exp"
+harness = false
