@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.2
+* Fix missing macros in `katex-header.html` (only affects rendered docs) [#122]
+
+[#122]: https://github.com/LFDT-Lockness/cggmp21/pull/122
+
 ## v0.5.1
 * Update `katex-header.html` injected into docs [#121]
 
