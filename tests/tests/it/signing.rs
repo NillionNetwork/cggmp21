@@ -15,19 +15,19 @@ cggmp21_tests::test_suite! {
     test = signing_works,
     generics = all_curves,
     suites = [
-        n2(None, 2, false, false),
-        n2_reliable(None, 2, true, false),
-        t2n2(Some(2), 2, false, false),
-        n3(None, 3, false, false),
-        t2n3(Some(2), 3, false, false),
-        t3n3(Some(3), 3, false, false),
+        n2: (None, 2, false, false),
+        n2_reliable: (None, 2, true, false),
+        t2n2: (Some(2), 2, false, false),
+        n3: (None, 3, false, false),
+        t2n3: (Some(2), 3, false, false),
+        t3n3: (Some(3), 3, false, false),
 
         #[cfg(feature = "hd-wallet")]
-        n3_hd(None, 3, false, true),
+        n3_hd: (None, 3, false, true),
         #[cfg(feature = "hd-wallet")]
-        t2n3_hd(Some(2), 3, false, true),
+        t2n3_hd: (Some(2), 3, false, true),
         #[cfg(feature = "hd-wallet")]
-        t3n3_hd(Some(3), 3, false, true),
+        t3n3_hd: (Some(3), 3, false, true),
     ]
 }
 
@@ -114,9 +114,9 @@ cggmp21_tests::test_suite! {
     test = signing_with_presigs,
     generics = all_curves,
     suites = [
-        t3n5(Some(3), 5, false),
+        t3n5: (Some(3), 5, false),
         #[cfg(feature = "hd-wallet")]
-        t3n5_hd(Some(3), 5, false),
+        t3n5_hd: (Some(3), 5, false),
     ]
 }
 
@@ -221,12 +221,12 @@ cggmp21_tests::test_suite! {
     test = signing_sync,
     generics = all_curves,
     suites = [
-        n3(None, 3, false),
-        t3n5(Some(3), 5, false),
+        n3: (None, 3, false),
+        t3n5: (Some(3), 5, false),
         #[cfg(feature = "hd-wallet")]
-        n3_hd(None, 3, true),
+        n3_hd: (None, 3, true),
         #[cfg(feature = "hd-wallet")]
-        t3n5_hd(Some(3), 5, true),
+        t3n5_hd: (Some(3), 5, true),
     ]
 }
 

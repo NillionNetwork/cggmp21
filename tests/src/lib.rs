@@ -213,18 +213,18 @@ macro_rules! test_suite {
         $crate::test_suite! {
             $(async_test = $async_test,)?
             $(test = $test,)?
-            generics = [
-                secp256k1 = <cggmp21::supported_curves::Secp256k1>,
-                secp256r1 = <cggmp21::supported_curves::Secp256r1>,
-                stark = <cggmp21::supported_curves::Stark>,
-            ],
+            generics = {
+                secp256k1: <cggmp21::supported_curves::Secp256k1>,
+                secp256r1: <cggmp21::supported_curves::Secp256r1>,
+                stark: <cggmp21::supported_curves::Stark>,
+            },
             suites = [$($suites)*]
         }
     };
     (
         $(async_test = $async_test:ident,)?
         $(test = $test:ident,)?
-        generics = [$($gmod:ident = <$($generic:path),*>),+$(,)?],
+        generics = {$($gmod:ident: <$($generic:path),*>),+$(,)?},
         suites = [$($suites:tt)*]
         $(,)?
     ) => {
@@ -233,7 +233,7 @@ macro_rules! test_suite {
             $crate::test_suite_traverse! {
                 $(async_test = $async_test,)?
                 $(test = $test,)?
-                generics = [$($gmod = <$($generic),+>),+],
+                generics = {$($gmod: <$($generic),+>),+},
                 suites = [$($suites)*]
             }
         }
@@ -248,7 +248,10 @@ macro_rules! test_suite_traverse {
         $(async_test = $async_test:ident,)?
         $(test = $test:ident,)?
         // we traverse over `generics`
-        generics = [$gmod:ident = <$($generic:path),*>$(, $($generics_rest:tt)*)?],
+        generics = {
+            $gmod:ident: <$($generic:path),*>
+            $(, $($generics_rest:tt)*)?
+        },
         suites = [$($suites:tt)*]
     ) => {
         mod $gmod {
@@ -263,7 +266,9 @@ macro_rules! test_suite_traverse {
         $crate::test_suite_traverse! {
             $(async_test = $async_test,)?
             $(test = $test,)?
-            generics = [$($($generics_rest)*)?],
+            generics = {
+                $($($generics_rest)*)?
+            },
             suites = [$($suites)*]
         }
     };
@@ -271,7 +276,7 @@ macro_rules! test_suite_traverse {
         $(async_test = $async_test:ident,)?
         $(test = $test:ident,)?
         // generics list is empty - nothing to traverse
-        generics = [],
+        generics = {},
         suites = [$($suites:tt)*]
     ) => {};
 
@@ -281,7 +286,7 @@ macro_rules! test_suite_traverse {
         // we traverse async suites
         suites = [
             $(#[$attr:meta])*
-            $suite_name:ident($($args:tt)*)
+            $suite_name:ident: ($($args:tt)*)
             $(, $($rest:tt)*)?
         ]
     ) => {
@@ -303,7 +308,7 @@ macro_rules! test_suite_traverse {
         // we traverse sync suites
         suites = [
             $(#[$attr:meta])*
-            $suite_name:ident($($args:tt)*)
+            $suite_name:ident: ($($args:tt)*)
             $(, $($rest:tt)*)?
         ]
     ) => {

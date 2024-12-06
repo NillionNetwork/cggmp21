@@ -12,10 +12,10 @@ cggmp21_tests::test_suite! {
     test = full_pipeline_works,
     generics = all_curves,
     suites = [
-        t2n3(2, 3, false),
-        t3n5(3, 5, false),
+        t2n3: (2, 3, false),
+        t3n5: (3, 5, false),
         #[cfg(feature = "hd-wallet")]
-        t3n5_hd(3, 5, true),
+        t3n5_hd: (3, 5, true),
     ]
 }
 fn full_pipeline_works<E>(t: u16, n: u16, hd_enabled: bool)

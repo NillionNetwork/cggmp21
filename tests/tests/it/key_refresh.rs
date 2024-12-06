@@ -13,9 +13,9 @@ cggmp21_tests::test_suite! {
     test = key_refresh_works,
     generics = all_curves,
     suites = [
-        n3(3, false),
-        n5(5, false),
-        n5_reliable(5, true),
+        n3: (3, false),
+        n5: (5, false),
+        n5_reliable: (5, true),
     ]
 }
 fn key_refresh_works<E: generic_ec::Curve>(n: u16, reliable_broadcast: bool)
@@ -114,9 +114,9 @@ cggmp21_tests::test_suite! {
     test = aux_gen_works,
     generics = all_curves,
     suites = [
-        t2n3(2, 3, false),
-        t3n5(3, 5, false),
-        t3n5_reliable(3, 5, true),
+        t2n3: (2, 3, false),
+        t3n5: (3, 5, false),
+        t3n5_reliable: (3, 5, true),
     ]
 }
 fn aux_gen_works<E: generic_ec::Curve>(t: u16, n: u16, reliable_broadcast: bool)

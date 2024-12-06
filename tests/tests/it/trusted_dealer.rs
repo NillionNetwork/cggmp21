@@ -21,7 +21,7 @@ cggmp21_tests::test_suite! {
     test = trusted_dealer_generates_correct_shares,
     generics = all_curves,
     suites = [
-        test(),
+        test: (),
     ]
 }
 fn trusted_dealer_generates_correct_shares<E: Curve>() {

@@ -10,19 +10,19 @@ cggmp21_tests::test_suite! {
     test = keygen_works,
     generics = all_curves,
     suites = [
-        n3(3, false, false),
-        n5(5, false, false),
-        n7(7, false, false),
-        n10(10, false, false),
-        n10_reliable(10, true, false),
+        n3: (3, false, false),
+        n5: (5, false, false),
+        n7: (7, false, false),
+        n10: (10, false, false),
+        n10_reliable: (10, true, false),
         #[cfg(feature = "hd-wallet")]
-        n3_hd(3, false, true),
+        n3_hd: (3, false, true),
         #[cfg(feature = "hd-wallet")]
-        n5_hd(5, false, true),
+        n5_hd: (5, false, true),
         #[cfg(feature = "hd-wallet")]
-        n7_hd(7, false, true),
+        n7_hd: (7, false, true),
         #[cfg(feature = "hd-wallet")]
-        n10_hd(10, false, true),
+        n10_hd: (10, false, true),
     ]
 }
 fn keygen_works<E: Curve>(n: u16, reliable_broadcast: bool, hd_wallet: bool) {
@@ -58,13 +58,13 @@ cggmp21_tests::test_suite! {
     test = threshold_keygen_works,
     generics = all_curves,
     suites = [
-        t2n3(2, 3, false, false),
-        t3n5(3, 5, false, false),
-        t3n5_reliable(3, 5, true, false),
+        t2n3: (2, 3, false, false),
+        t3n5: (3, 5, false, false),
+        t3n5_reliable: (3, 5, true, false),
         #[cfg(feature = "hd-wallet")]
-        t2n3_hd(2, 3, false, true),
+        t2n3_hd: (2, 3, false, true),
         #[cfg(feature = "hd-wallet")]
-        t3n5_hd(3, 5, false, true),
+        t3n5_hd: (3, 5, false, true),
     ]
 }
 fn threshold_keygen_works<E: Curve>(t: u16, n: u16, reliable_broadcast: bool, hd_wallet: bool) {
@@ -101,9 +101,9 @@ cggmp21_tests::test_suite! {
     test = threshold_keygen_sync_works,
     generics = all_curves,
     suites = [
-        t3n5(3, 5, false),
+        t3n5: (3, 5, false),
         #[cfg(feature = "hd-wallet")]
-        t3n5_hd(3, 5, true),
+        t3n5_hd: (3, 5, true),
     ]
 }
 fn threshold_keygen_sync_works<E: Curve>(t: u16, n: u16, hd_wallet: bool) {
