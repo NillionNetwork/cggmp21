@@ -153,7 +153,7 @@ where
 
     let key_shares = shares
         .into_iter()
-        .zip(aux_infos.into_iter())
+        .zip(aux_infos)
         .map(|(share, aux)| {
             DirtyKeyShare {
                 core: share.into_inner().core,

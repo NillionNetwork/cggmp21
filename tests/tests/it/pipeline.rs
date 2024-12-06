@@ -81,7 +81,7 @@ where
 
     shares
         .into_iter()
-        .zip(aux_infos.into_iter())
+        .zip(aux_infos)
         .map(|(core, aux)| {
             KeyShare::from_parts((core, aux)).expect("Couldn't make share from parts")
         })
