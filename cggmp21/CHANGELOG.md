@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.1
+* Update `katex-header.html` injected into docs [#121]
+
+[#121]: https://github.com/LFDT-Lockness/cggmp21/pull/121
+
 ## v0.5.0
 * BREAKING: use `hd-wallet` crate for HD support instead of `slip-10` [#115]
 * BREAKING: rename `hd-wallets` feature into `hd-wallet` [#115]
