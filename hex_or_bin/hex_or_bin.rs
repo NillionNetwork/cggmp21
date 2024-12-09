@@ -52,7 +52,7 @@ where
             out: T,
             _ph: core::marker::PhantomData<T>,
         }
-        impl<'de, T> serde::de::Visitor<'de> for Visitor<T>
+        impl<T> serde::de::Visitor<'_> for Visitor<T>
         where
             T: AsMut<[u8]>,
         {
