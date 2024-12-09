@@ -7,9 +7,9 @@ use rand_dev::DevRng;
 use cggmp21::{key_share::reconstruct_secret_key, ExecutionId};
 
 cggmp21_tests::test_suite! {
-    test = keygen_works,
-    generics = all_curves,
-    suites = [
+    test: keygen_works,
+    generics: all_curves,
+    suites: {
         n3: (3, false, false),
         n5: (5, false, false),
         n7: (7, false, false),
@@ -23,7 +23,7 @@ cggmp21_tests::test_suite! {
         n7_hd: (7, false, true),
         #[cfg(feature = "hd-wallet")]
         n10_hd: (10, false, true),
-    ]
+    }
 }
 fn keygen_works<E: Curve>(n: u16, reliable_broadcast: bool, hd_wallet: bool) {
     #[cfg(not(feature = "hd-wallet"))]
@@ -55,9 +55,9 @@ fn keygen_works<E: Curve>(n: u16, reliable_broadcast: bool, hd_wallet: bool) {
 }
 
 cggmp21_tests::test_suite! {
-    test = threshold_keygen_works,
-    generics = all_curves,
-    suites = [
+    test: threshold_keygen_works,
+    generics: all_curves,
+    suites: {
         t2n3: (2, 3, false, false),
         t3n5: (3, 5, false, false),
         t3n5_reliable: (3, 5, true, false),
@@ -65,7 +65,7 @@ cggmp21_tests::test_suite! {
         t2n3_hd: (2, 3, false, true),
         #[cfg(feature = "hd-wallet")]
         t3n5_hd: (3, 5, false, true),
-    ]
+    }
 }
 fn threshold_keygen_works<E: Curve>(t: u16, n: u16, reliable_broadcast: bool, hd_wallet: bool) {
     #[cfg(not(feature = "hd-wallet"))]
@@ -98,13 +98,13 @@ fn threshold_keygen_works<E: Curve>(t: u16, n: u16, reliable_broadcast: bool, hd
 }
 
 cggmp21_tests::test_suite! {
-    test = threshold_keygen_sync_works,
-    generics = all_curves,
-    suites = [
+    test: threshold_keygen_sync_works,
+    generics: all_curves,
+    suites: {
         t3n5: (3, 5, false),
         #[cfg(feature = "hd-wallet")]
         t3n5_hd: (3, 5, true),
-    ]
+    }
 }
 fn threshold_keygen_sync_works<E: Curve>(t: u16, n: u16, hd_wallet: bool) {
     #[cfg(not(feature = "hd-wallet"))]

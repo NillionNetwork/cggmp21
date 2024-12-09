@@ -18,11 +18,11 @@ define_security_level!(DummyLevel {
 });
 
 cggmp21_tests::test_suite! {
-    test = trusted_dealer_generates_correct_shares,
-    generics = all_curves,
-    suites = [
+    test: trusted_dealer_generates_correct_shares,
+    generics: all_curves,
+    suites: {
         test: (),
-    ]
+    }
 }
 fn trusted_dealer_generates_correct_shares<E: Curve>() {
     let mut rng = DevRng::new();

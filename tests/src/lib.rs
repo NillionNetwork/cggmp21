@@ -204,37 +204,37 @@ impl CurveParams for cggmp21::supported_curves::Stark {
 #[macro_export]
 macro_rules! test_suite {
     (
-        $(async_test = $async_test:ident,)?
-        $(test = $test:ident,)?
-        generics = all_curves,
-        suites = [$($suites:tt)*]
+        $(async_test: $async_test:ident,)?
+        $(test: $test:ident,)?
+        generics: all_curves,
+        suites: {$($suites:tt)*}
         $(,)?
     ) => {
         $crate::test_suite! {
-            $(async_test = $async_test,)?
-            $(test = $test,)?
-            generics = {
+            $(async_test: $async_test,)?
+            $(test: $test,)?
+            generics: {
                 secp256k1: <cggmp21::supported_curves::Secp256k1>,
                 secp256r1: <cggmp21::supported_curves::Secp256r1>,
                 stark: <cggmp21::supported_curves::Stark>,
             },
-            suites = [$($suites)*]
+            suites: {$($suites)*}
         }
     };
     (
-        $(async_test = $async_test:ident,)?
-        $(test = $test:ident,)?
-        generics = {$($gmod:ident: <$($generic:path),*>),+$(,)?},
-        suites = [$($suites:tt)*]
+        $(async_test: $async_test:ident,)?
+        $(test: $test:ident,)?
+        generics: {$($gmod:ident: <$($generic:path),*>),+$(,)?},
+        suites: {$($suites:tt)*}
         $(,)?
     ) => {
         mod $($test)? $($async_test)? {
             use super::$($test)? $($async_test)?;
             $crate::test_suite_traverse! {
-                $(async_test = $async_test,)?
-                $(test = $test,)?
-                generics = {$($gmod: <$($generic),+>),+},
-                suites = [$($suites)*]
+                $(async_test: $async_test,)?
+                $(test: $test,)?
+                generics: {$($gmod: <$($generic),+>),+},
+                suites: {$($suites)*}
             }
         }
     };
@@ -245,50 +245,50 @@ macro_rules! test_suite {
 macro_rules! test_suite_traverse {
     (
         // Either `$async_test` or `$test` must be present, but not at the same time
-        $(async_test = $async_test:ident,)?
-        $(test = $test:ident,)?
+        $(async_test: $async_test:ident,)?
+        $(test: $test:ident,)?
         // we traverse over `generics`
-        generics = {
+        generics: {
             $gmod:ident: <$($generic:path),*>
             $(, $($generics_rest:tt)*)?
         },
-        suites = [$($suites:tt)*]
+        suites: {$($suites:tt)*}
     ) => {
         mod $gmod {
             use super::$($test)? $($async_test)?;
             $crate::test_suite_traverse! {
-                $(async_test = $async_test,)?
-                $(test = $test,)?
-                generics = <$($generic),+>,
-                suites = [$($suites)*]
+                $(async_test: $async_test,)?
+                $(test: $test,)?
+                generics: <$($generic),+>,
+                suites: {$($suites)*}
             }
         }
         $crate::test_suite_traverse! {
-            $(async_test = $async_test,)?
-            $(test = $test,)?
-            generics = {
+            $(async_test: $async_test,)?
+            $(test: $test,)?
+            generics: {
                 $($($generics_rest)*)?
             },
-            suites = [$($suites)*]
+            suites: {$($suites)*}
         }
     };
     (
-        $(async_test = $async_test:ident,)?
-        $(test = $test:ident,)?
+        $(async_test: $async_test:ident,)?
+        $(test: $test:ident,)?
         // generics list is empty - nothing to traverse
-        generics = {},
-        suites = [$($suites:tt)*]
+        generics: {},
+        suites: {$($suites:tt)*}
     ) => {};
 
     (
-        async_test = $test:ident,
-        generics = <$($generic:path),*>,
+        async_test: $test:ident,
+        generics: <$($generic:path),*>,
         // we traverse async suites
-        suites = [
+        suites: {
             $(#[$attr:meta])*
             $suite_name:ident: ($($args:tt)*)
             $(, $($rest:tt)*)?
-        ]
+        }
     ) => {
         $(#[$attr])*
         #[tokio::test]
@@ -297,20 +297,20 @@ macro_rules! test_suite_traverse {
         }
 
         $crate::test_suite_traverse! {
-            async_test = $test,
-            generics = <$($generic),*>,
-            suites = [$($($rest)*)?]
+            async_test: $test,
+            generics: <$($generic),*>,
+            suites: {$($($rest)*)?}
         }
     };
     (
-        test = $test:ident,
-        generics = <$($generic:path),*>,
+        test: $test:ident,
+        generics: <$($generic:path),*>,
         // we traverse sync suites
-        suites = [
+        suites: {
             $(#[$attr:meta])*
             $suite_name:ident: ($($args:tt)*)
             $(, $($rest:tt)*)?
-        ]
+        }
     ) => {
         $(#[$attr])*
         #[test]
@@ -319,16 +319,16 @@ macro_rules! test_suite_traverse {
         }
 
         $crate::test_suite_traverse! {
-            test = $test,
-            generics = <$($generic),*>,
-            suites = [$($($rest)*)?]
+            test: $test,
+            generics: <$($generic),*>,
+            suites: {$($($rest)*)?}
         }
     };
     (
-        $(async_test = $async_test:ident,)?
-        $(test = $test:ident,)?
-        generics = <$($generic:path),*>,
+        $(async_test: $async_test:ident,)?
+        $(test: $test:ident,)?
+        generics: <$($generic:path),*>,
         // suites list is empty - nothing to traverse
-        suites = []
+        suites: {}
     ) => {};
 }

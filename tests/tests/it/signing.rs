@@ -12,9 +12,9 @@ use cggmp21::signing::DataToSign;
 use cggmp21::{security_level::SecurityLevel128, ExecutionId};
 
 cggmp21_tests::test_suite! {
-    test = signing_works,
-    generics = all_curves,
-    suites = [
+    test: signing_works,
+    generics: all_curves,
+    suites: {
         n2: (None, 2, false, false),
         n2_reliable: (None, 2, true, false),
         t2n2: (Some(2), 2, false, false),
@@ -28,7 +28,7 @@ cggmp21_tests::test_suite! {
         t2n3_hd: (Some(2), 3, false, true),
         #[cfg(feature = "hd-wallet")]
         t3n3_hd: (Some(3), 3, false, true),
-    ]
+    }
 }
 
 fn signing_works<E>(t: Option<u16>, n: u16, reliable_broadcast: bool, hd_wallet: bool)
@@ -111,13 +111,13 @@ where
 }
 
 cggmp21_tests::test_suite! {
-    test = signing_with_presigs,
-    generics = all_curves,
-    suites = [
+    test: signing_with_presigs,
+    generics: all_curves,
+    suites: {
         t3n5: (Some(3), 5, false),
         #[cfg(feature = "hd-wallet")]
         t3n5_hd: (Some(3), 5, false),
-    ]
+    }
 }
 
 fn signing_with_presigs<E>(t: Option<u16>, n: u16, hd_wallet: bool)
@@ -218,16 +218,16 @@ where
 }
 
 cggmp21_tests::test_suite! {
-    test = signing_sync,
-    generics = all_curves,
-    suites = [
+    test: signing_sync,
+    generics: all_curves,
+    suites: {
         n3: (None, 3, false),
         t3n5: (Some(3), 5, false),
         #[cfg(feature = "hd-wallet")]
         n3_hd: (None, 3, true),
         #[cfg(feature = "hd-wallet")]
         t3n5_hd: (Some(3), 5, true),
-    ]
+    }
 }
 
 fn signing_sync<E>(t: Option<u16>, n: u16, hd_wallet: bool)
