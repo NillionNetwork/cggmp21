@@ -4,7 +4,7 @@ version = "0.4.2"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "ZK-proofs for Paillier encryption scheme"
-repository = "https://github.com/LFDT-Lockness/paillier-zk"
+repository = "https://github.com/LFDT-Lockness/cggmp21"
 categories = ["algorithms", "cryptography"]
 keywords = ["paillier", "zk-proofs", "zero-knowledge"]
 
