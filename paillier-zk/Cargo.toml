@@ -1,0 +1,51 @@
+[package]
+name = "paillier-zk"
+version = "0.4.2"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "ZK-proofs for Paillier encryption scheme"
+repository = "https://github.com/LFDT-Lockness/cggmp21"
+categories = ["algorithms", "cryptography"]
+keywords = ["paillier", "zk-proofs", "zero-knowledge"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+generic-ec = { version = "0.4", features = ["udigest"] }
+rand_core = { version = "0.6", default-features = false }
+digest = "0.10"
+fast-paillier = "0.1"
+rug = { version = "1.21", default-features = false, features = ["integer", "rand"] }
+
+thiserror = "1"
+
+serde = { version = "1", features = ["derive"], optional = true }
+serde_with = { version = "3", default-features = false, features = ["macros"], optional = true }
+
+udigest = { version = "0.2.1", default-features = false, features = ["inline-struct", "derive"] }
+rand_hash = "0.1"
+
+[dev-dependencies]
+generic-ec = { version = "0.4", features = ["udigest", "all-curves"] }
+rand_dev = { version = "0.1", default-features = false }
+sha2 = { version = "0.10", default-features = false }
+
+subtle = { version = "2.4", default-features = false }
+zeroize = { version = "1.5", default-features = false }
+
+anyhow = "1"
+serde_json = "1"
+
+[features]
+default = []
+serde = ["dep:serde", "dep:serde_with", "generic-ec/serde", "rug/serde", "fast-paillier/serde"]
+
+# This features is exlusively used for `cargo test --doc`
+__internal_doctest = ["serde"]
+
+[[example]]
+name = "pregenerate"
+required-features = ["serde"]
+
+[package.metadata.docs.rs]
+all-features = true

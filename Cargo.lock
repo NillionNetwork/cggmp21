@@ -1637,20 +1637,24 @@ dependencies = [
 
 [[package]]
 name = "paillier-zk"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41f7666e5a36fe77ef28a4f8306367a759c7caacbdf8eeea89f524ccc2ade933"
+version = "0.4.2"
 dependencies = [
+ "anyhow",
  "digest",
  "fast-paillier",
  "generic-ec",
  "rand_core",
+ "rand_dev",
  "rand_hash",
  "rug",
  "serde",
+ "serde_json",
  "serde_with 3.0.0",
+ "sha2",
+ "subtle",
  "thiserror 1.0.48",
  "udigest",
+ "zeroize",
 ]
 
 [[package]]
