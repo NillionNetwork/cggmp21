@@ -226,7 +226,7 @@ impl IntegerExt for Integer {
 
 /// Error indicating that computation cannot be evaluated because of bad exponent
 ///
-/// Returned by [`BigNumberExt::powmod`] and other functions that do exponentiation internally
+/// Returned by [`Aux::pow_mod`] and other functions that do exponentiation internally
 #[derive(Clone, Copy, Debug, thiserror::Error)]
 #[error(transparent)]
 pub struct BadExponent(#[from] BadExponentReason);
