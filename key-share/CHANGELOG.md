@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.0
+* Update `hd-wallet` dep to v0.6 [#120]
+
+[#120]: https://github.com/LFDT-Lockness/cggmp21/pull/120
+
 ## v0.5.2
 * Fix missing macros in `katex-header.html` (only affects rendered docs) [#122]
 

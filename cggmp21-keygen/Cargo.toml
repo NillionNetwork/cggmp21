@@ -1,6 +1,6 @@
 [package]
 name = "cggmp21-keygen"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "UC-secure DKG implementation based on CGGMP21 paper"
@@ -34,6 +34,6 @@ thiserror = { workspace = true, optional = true }
 [features]
 default = ["std"]
 
-std = ["thiserror", "key-share/std", "udigest/std", "round-based/std"]
+std = ["thiserror", "key-share/std", "udigest/std"]
 hd-wallet = ["dep:hd-wallet", "key-share/hd-wallet"]
 state-machine = ["round-based/state-machine"]

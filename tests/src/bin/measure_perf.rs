@@ -8,11 +8,9 @@ use cggmp21::{
 };
 use rand::Rng;
 use rand_dev::DevRng;
-use round_based::simulation::Simulation;
 use sha2::Sha256;
 
 type E = generic_ec::curves::Secp256k1;
-type D = sha2::Sha256;
 
 struct Args {
     n: Vec<u16>,
@@ -55,17 +53,16 @@ fn args() -> Args {
     .to_options()
     .run()
 }
-#[tokio::main(flavor = "current_thread")]
-async fn main() {
+fn main() {
     let args = args();
     if args.custom_sec_level {
-        do_becnhmarks::<CustomSecLevel>(args).await
+        do_becnhmarks::<CustomSecLevel>(args)
     } else {
-        do_becnhmarks::<SecurityLevel128>(args).await
+        do_becnhmarks::<SecurityLevel128>(args)
     }
 }
 
-async fn do_becnhmarks<L: SecurityLevel>(args: Args) {
+fn do_becnhmarks<L: SecurityLevel>(args: Args) {
     let mut rng = DevRng::new();
 
     for n in args.n {
@@ -89,11 +86,7 @@ async fn do_becnhmarks<L: SecurityLevel>(args: Args) {
                 let eid: [u8; 32] = rng.gen();
                 let eid = ExecutionId::new(&eid);
 
-                let mut simulation =
-                    Simulation::<cggmp21::keygen::msg::non_threshold::Msg<E, L, D>>::new();
-
-                let outputs = (0..n).map(|i| {
-                    let party = simulation.add_party();
+                let outputs = round_based::sim::run(n, |i, party| {
                     let mut party_rng = rng.fork();
 
                     let mut profiler = PerfProfiler::new();
@@ -108,11 +101,10 @@ async fn do_becnhmarks<L: SecurityLevel>(args: Args) {
                         let report = profiler.get_report().context("get perf report")?;
                         Ok::<_, anyhow::Error>((key_share, report))
                     }
-                });
-
-                let outputs = futures::future::try_join_all(outputs)
-                    .await
-                    .expect("non-threshold keygen failed");
+                })
+                .unwrap()
+                .expect_ok()
+                .into_vec();
 
                 if args.bench_non_threshold_keygen {
                     println!("Non-threshold DKG");
@@ -132,13 +124,7 @@ async fn do_becnhmarks<L: SecurityLevel>(args: Args) {
                 let eid: [u8; 32] = rng.gen();
                 let eid = ExecutionId::new(&eid);
 
-                let mut simulation =
-                    Simulation::<cggmp21::keygen::msg::threshold::Msg<E, L, D>>::with_capacity(
-                        (2 * n * n).into(),
-                    );
-
-                let outputs = (0..n).map(|i| {
-                    let party = simulation.add_party();
+                let outputs = round_based::sim::run(n, |i, party| {
                     let mut party_rng = rng.fork();
 
                     let mut profiler = PerfProfiler::new();
@@ -154,11 +140,10 @@ async fn do_becnhmarks<L: SecurityLevel>(args: Args) {
                         let report = profiler.get_report().context("get perf report")?;
                         Ok::<_, anyhow::Error>((key_share, report))
                     }
-                });
-
-                let outputs = futures::future::try_join_all(outputs)
-                    .await
-                    .expect("threshold keygen failed");
+                })
+                .unwrap()
+                .expect_ok()
+                .into_vec();
 
                 println!("Threshold DKG");
                 println!("{}", outputs[0].1.clone().display_io(false));
@@ -174,12 +159,9 @@ async fn do_becnhmarks<L: SecurityLevel>(args: Args) {
                 let eid: [u8; 32] = rng.gen();
                 let eid = ExecutionId::new(&eid);
 
-                let mut simulation = Simulation::<cggmp21::key_refresh::AuxOnlyMsg<D, L>>::new();
-
                 let mut primes = cggmp21_tests::CACHED_PRIMES.iter::<L>();
 
-                let outputs = (0..n).map(|i| {
-                    let party = simulation.add_party();
+                let outputs = round_based::sim::run(n, |i, party| {
                     let mut party_rng = rng.fork();
                     let pregen = primes.next().expect("Can't get pregenerated prime");
 
@@ -194,11 +176,10 @@ async fn do_becnhmarks<L: SecurityLevel>(args: Args) {
                         let report = profiler.get_report().context("get perf report")?;
                         Ok::<_, anyhow::Error>((aux_data, report))
                     }
-                });
-
-                let outputs = futures::future::try_join_all(outputs)
-                    .await
-                    .expect("key refresh failed");
+                })
+                .unwrap()
+                .expect_ok()
+                .into_vec();
 
                 if args.bench_aux_data_gen {
                     println!("Auxiliary data generation protocol");
@@ -261,29 +242,23 @@ async fn do_becnhmarks<L: SecurityLevel>(args: Args) {
             let message_to_sign = b"Dfns rules!";
             let message_to_sign = DataToSign::digest::<Sha256>(message_to_sign);
 
-            use cggmp21::signing::msg::Msg;
-            let mut simulation = Simulation::<Msg<E, D>>::new();
-
-            let mut outputs = vec![];
-            for (i, share) in (0..).zip(&shares) {
-                let party = simulation.add_party();
+            let perf_reports = round_based::sim::run_with_setup(&shares, |i, party, share| {
                 let mut party_rng = rng.fork();
 
                 let mut profiler = PerfProfiler::new();
 
-                outputs.push(async move {
+                async move {
                     let _signature = cggmp21::signing(eid, i, signers_indexes_at_keygen, share)
                         .set_progress_tracer(&mut profiler)
                         .sign(&mut party_rng, party, message_to_sign)
                         .await
                         .context("signing failed")?;
                     profiler.get_report().context("get perf report")
-                })
-            }
-
-            let perf_reports = futures::future::try_join_all(outputs)
-                .await
-                .expect("signing failed");
+                }
+            })
+            .unwrap()
+            .expect_ok()
+            .into_vec();
 
             println!("Signing protocol");
             println!("{}", perf_reports[0].clone().display_io(false));

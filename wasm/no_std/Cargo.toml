@@ -14,4 +14,3 @@ features = ["serde", "hd-wallet", "spof", "udigest"]
 path = "../../cggmp21-keygen"
 default-features = false
 features = ["hd-wallet", "state-machine"]
-
