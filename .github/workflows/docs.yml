@@ -2,7 +2,7 @@ name: Build CGGMP21 Spec & Docs
 
 on:
   pull_request:
-    branches: [ "*" ]
+    branches: [ "**" ]
   push:
     branches: [ "m" ]
 

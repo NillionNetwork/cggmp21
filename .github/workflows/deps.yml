@@ -2,7 +2,7 @@ name: Deps tracker
 
 on:
   pull_request:
-    branches: [ "*" ]
+    branches: [ "**" ]
     paths:
     - '**/Cargo.toml'
     - '**/Cargo.lock'
