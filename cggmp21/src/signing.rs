@@ -96,7 +96,7 @@ pub struct PartialSignature<E: Curve> {
 }
 
 /// ECDSA signature
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Debug)]
 #[serde(bound = "")]
 pub struct Signature<E: Curve> {
     /// $r$ component of signature
@@ -350,9 +350,10 @@ where
     /// ```
     ///
     /// ## Derivation algorithm
-    /// This method uses [`hd_wallet::Slip10Like`] derivation algorithm. If you need to use another one, see
+    /// This method uses [`hd_wallet::Slip10`] derivation algorithm, which can only be used with secp256k1
+    /// and secp256r1 curves. If you need to use another one, see
     /// [`set_derivation_path_with_algo`](Self::set_derivation_path_with_algo)
-    #[cfg(feature = "hd-wallet")]
+    #[cfg(all(feature = "hd-wallet", feature = "hd-slip10"))]
     pub fn set_derivation_path<Index>(
         self,
         path: impl IntoIterator<Item = Index>,
@@ -361,9 +362,10 @@ where
         crate::key_share::HdError<<Index as TryInto<hd_wallet::NonHardenedIndex>>::Error>,
     >
     where
+        hd_wallet::Slip10: hd_wallet::HdWallet<E>,
         hd_wallet::NonHardenedIndex: TryFrom<Index>,
     {
-        self.set_derivation_path_with_algo::<hd_wallet::Slip10Like, _>(path)
+        self.set_derivation_path_with_algo::<hd_wallet::Slip10, _>(path)
     }
 
     /// Specifies HD derivation path, using HD derivation algorithm [`hd_wallet::HdWallet`]
@@ -1290,18 +1292,21 @@ impl<E: Curve> Presignature<E> {
     /// assoicated with the key share that was used to generate presignature.
     /// Using wrong `epub` will simply lead to invalid signature.
     ///
-    /// For HD derivation, uses [`hd_wallet::Slip10Like`] algorithm. If you need to
-    /// use another derivation algorithm, see [`set_derivation_path_with_algo`](Self::set_derivation_path_with_algo)
-    #[cfg(feature = "hd-wallet")]
+    /// ## Derivation algorithm
+    /// This method uses [`hd_wallet::Slip10`] derivation algorithm, which can only be used with secp256k1
+    /// and secp256r1 curves. If you need to use another one, see
+    /// [`set_derivation_path_with_algo`](Self::set_derivation_path_with_algo)
+    #[cfg(all(feature = "hd-wallet", feature = "hd-slip10"))]
     pub fn set_derivation_path<Index>(
         self,
         epub: hd_wallet::ExtendedPublicKey<E>,
         derivation_path: impl IntoIterator<Item = Index>,
     ) -> Result<Self, <Index as TryInto<hd_wallet::NonHardenedIndex>>::Error>
     where
+        hd_wallet::Slip10: hd_wallet::HdWallet<E>,
         hd_wallet::NonHardenedIndex: TryFrom<Index>,
     {
-        self.set_derivation_path_with_algo::<hd_wallet::Slip10Like, _>(epub, derivation_path)
+        self.set_derivation_path_with_algo::<hd_wallet::Slip10, _>(epub, derivation_path)
     }
 
     /// Specifies HD derivation path

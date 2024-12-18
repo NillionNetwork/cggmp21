@@ -45,7 +45,7 @@ __internal_doctest = ["serde"]
 
 [[example]]
 name = "pregenerate"
-required-features = ["serde"]
+required-features = ["serde", "__internal_doctest"]
 
 [package.metadata.docs.rs]
 all-features = true

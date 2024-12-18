@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "m" ]
   pull_request:
-    branches: [ "*" ]
+    branches: [ "**" ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -55,8 +55,8 @@ jobs:
       run:
         (cd wasm/no_std && cargo build --target wasm32-unknown-unknown)
 
-  # Run tests without HD wallets support
-  test:
+  # Run tests with default features (without HD wallets support)
+  test-default-features:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -64,9 +64,10 @@ jobs:
       with:
         cache-on-failure: "true"
     - name: Run tests
-      run: cargo test -r
-  # Run tests including HD wallets support
-  test-hd:
+      # we exclude paillier-zk, as tests require all features to be enabled
+      run: cargo test -r --workspace --exclude paillier-zk
+  # Run tests with all features, including HD wallets support
+  test-all-features:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -110,7 +111,7 @@ jobs:
       with:
         cache-on-failure: "true"
     - name: Check docs
-      run: RUSTDOCFLAGS="--cfg docsrs -D warnings" cargo +nightly doc --workspace --all-features --no-deps
+      run: RUSTDOCFLAGS="-D warnings" cargo doc --workspace --all-features --no-deps
 
   bench:
     runs-on: ubuntu-latest

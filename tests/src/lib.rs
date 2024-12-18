@@ -173,3 +173,162 @@ pub fn random_derivation_path(rng: &mut impl rand::RngCore) -> Vec<u32> {
         .take(len)
         .collect::<Vec<_>>()
 }
+
+/// Parameters per each curve that are needed in tests
+pub trait CurveParams: Curve {
+    /// Which HD derivation algorithm to use with that curve
+    #[cfg(feature = "hd-wallet")]
+    type HdAlgo: cggmp21::hd_wallet::HdWallet<Self>;
+    /// External verifier for signatures on this curve
+    type ExVerifier: external_verifier::ExternalVerifier<Self>;
+}
+
+impl CurveParams for cggmp21::supported_curves::Secp256k1 {
+    #[cfg(feature = "hd-wallet")]
+    type HdAlgo = cggmp21::hd_wallet::Slip10;
+    type ExVerifier = external_verifier::blockchains::Bitcoin;
+}
+
+impl CurveParams for cggmp21::supported_curves::Secp256r1 {
+    #[cfg(feature = "hd-wallet")]
+    type HdAlgo = cggmp21::hd_wallet::Slip10;
+    type ExVerifier = external_verifier::Noop;
+}
+
+impl CurveParams for cggmp21::supported_curves::Stark {
+    #[cfg(feature = "hd-wallet")]
+    type HdAlgo = cggmp21::hd_wallet::Stark;
+    type ExVerifier = external_verifier::blockchains::StarkNet;
+}
+
+#[macro_export]
+macro_rules! test_suite {
+    (
+        $(async_test: $async_test:ident,)?
+        $(test: $test:ident,)?
+        generics: all_curves,
+        suites: {$($suites:tt)*}
+        $(,)?
+    ) => {
+        $crate::test_suite! {
+            $(async_test: $async_test,)?
+            $(test: $test,)?
+            generics: {
+                secp256k1: <cggmp21::supported_curves::Secp256k1>,
+                secp256r1: <cggmp21::supported_curves::Secp256r1>,
+                stark: <cggmp21::supported_curves::Stark>,
+            },
+            suites: {$($suites)*}
+        }
+    };
+    (
+        $(async_test: $async_test:ident,)?
+        $(test: $test:ident,)?
+        generics: {$($gmod:ident: <$($generic:path),*>),+$(,)?},
+        suites: {$($suites:tt)*}
+        $(,)?
+    ) => {
+        mod $($test)? $($async_test)? {
+            use super::$($test)? $($async_test)?;
+            $crate::test_suite_traverse! {
+                $(async_test: $async_test,)?
+                $(test: $test,)?
+                generics: {$($gmod: <$($generic),+>),+},
+                suites: {$($suites)*}
+            }
+        }
+    };
+}
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! test_suite_traverse {
+    (
+        // Either `$async_test` or `$test` must be present, but not at the same time
+        $(async_test: $async_test:ident,)?
+        $(test: $test:ident,)?
+        // we traverse over `generics`
+        generics: {
+            $gmod:ident: <$($generic:path),*>
+            $(, $($generics_rest:tt)*)?
+        },
+        suites: {$($suites:tt)*}
+    ) => {
+        mod $gmod {
+            use super::$($test)? $($async_test)?;
+            $crate::test_suite_traverse! {
+                $(async_test: $async_test,)?
+                $(test: $test,)?
+                generics: <$($generic),+>,
+                suites: {$($suites)*}
+            }
+        }
+        $crate::test_suite_traverse! {
+            $(async_test: $async_test,)?
+            $(test: $test,)?
+            generics: {
+                $($($generics_rest)*)?
+            },
+            suites: {$($suites)*}
+        }
+    };
+    (
+        $(async_test: $async_test:ident,)?
+        $(test: $test:ident,)?
+        // generics list is empty - nothing to traverse
+        generics: {},
+        suites: {$($suites:tt)*}
+    ) => {};
+
+    (
+        async_test: $test:ident,
+        generics: <$($generic:path),*>,
+        // we traverse async suites
+        suites: {
+            $(#[$attr:meta])*
+            $suite_name:ident: ($($args:tt)*)
+            $(, $($rest:tt)*)?
+        }
+    ) => {
+        $(#[$attr])*
+        #[tokio::test]
+        async fn $suite_name() {
+            $test::<$($generic),+>($($args)*).await
+        }
+
+        $crate::test_suite_traverse! {
+            async_test: $test,
+            generics: <$($generic),*>,
+            suites: {$($($rest)*)?}
+        }
+    };
+    (
+        test: $test:ident,
+        generics: <$($generic:path),*>,
+        // we traverse sync suites
+        suites: {
+            $(#[$attr:meta])*
+            $suite_name:ident: ($($args:tt)*)
+            $(, $($rest:tt)*)?
+        }
+    ) => {
+        $(#[$attr])*
+        #[test]
+        fn $suite_name() {
+            $test::<$($generic),+>($($args)*)
+        }
+
+        $crate::test_suite_traverse! {
+            test: $test,
+            generics: <$($generic),*>,
+            suites: {$($($rest)*)?}
+        }
+    };
+    (
+        $(async_test: $async_test:ident,)?
+        $(test: $test:ident,)?
+        generics: <$($generic:path),*>,
+        // suites list is empty - nothing to traverse
+        suites: {}
+    ) => {};
+}
