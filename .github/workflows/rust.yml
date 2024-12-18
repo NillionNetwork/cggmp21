@@ -65,7 +65,7 @@ jobs:
         cache-on-failure: "true"
     - name: Run tests
       # we exclude paillier-zk, as tests require all features to be enabled
-      run: cargo test -r --exclude paillier-zk
+      run: cargo test -r --workspace --exclude paillier-zk
   # Run tests with all features, including HD wallets support
   test-all-features:
     runs-on: ubuntu-latest
