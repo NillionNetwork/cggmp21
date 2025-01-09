@@ -15,13 +15,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: Swatinem/rust-cache@v2
       with:
         cache-on-failure: "true"
     - name: Build
       run: cargo build --release --all-features
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: benchmark-tool
         path: target/release/measure_perf
@@ -35,7 +35,7 @@ jobs:
         - cggmp21-keygen
         - cggmp21
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: Swatinem/rust-cache@v2
       with:
         cache-on-failure: "true"
@@ -44,7 +44,7 @@ jobs:
   build-wasm-nostd:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: Swatinem/rust-cache@v2
       with:
         cache-on-failure: "true"
@@ -58,7 +58,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: Swatinem/rust-cache@v2
       with:
         cache-on-failure: "true"
@@ -68,7 +68,7 @@ jobs:
   test-hd:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: Swatinem/rust-cache@v2
       with:
         cache-on-failure: "true"
@@ -78,13 +78,13 @@ jobs:
   fmt:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Check formatting
       run: cargo fmt --all -- --check
   clippy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: Swatinem/rust-cache@v2
       with:
         cache-on-failure: "true"
@@ -97,7 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: dtolnay/rust-toolchain@nightly
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: Swatinem/rust-cache@v2
       with:
         cache-on-failure: "true"
@@ -111,8 +111,8 @@ jobs:
       pull-requests: write
     needs: build
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/download-artifact@v3
+    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v4
       with:
         name: benchmark-tool
     - name: Set file permissions
@@ -129,6 +129,6 @@ jobs:
   check-changelog:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Check changelogs
       run: ./.github/changelog.sh

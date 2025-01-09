@@ -21,7 +21,7 @@ jobs:
       github.ref_type == 'tag'
       && startsWith(github.ref_name, 'v')
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: cargo publish -p cggmp21
       env:
         CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_TOKEN }}
@@ -34,10 +34,10 @@ jobs:
       github.ref_type == 'tag'
       && startsWith(github.ref_name, 'key-share-v')
     steps:
-    - uses: actions/checkout@v3
-    - run: cargo publish -p key-share --token ${CRATES_TOKEN}
+    - uses: actions/checkout@v4
+    - run: cargo publish -p key-share
       env:
-        CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+        CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_TOKEN }}
 
   publish-cggmp21-keygen:
     name: Publish cggmp21-keygen
@@ -47,7 +47,7 @@ jobs:
       github.ref_type == 'tag'
       && startsWith(github.ref_name, 'cggmp21-keygen-v')
     steps:
-    - uses: actions/checkout@v3
-    - run: cargo publish -p cggmp21-keygen --token ${CRATES_TOKEN}
+    - uses: actions/checkout@v4
+    - run: cargo publish -p cggmp21-keygen
       env:
-        CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+        CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_TOKEN }}
