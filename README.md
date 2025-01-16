@@ -53,7 +53,7 @@ Our implementation has been audited by Kudelski. Report can be found [here][repo
 
 > About notion of threshold and non-threshold keys: originally, CGGMP21 paper does not have support of
 arbitrary `t` and only works with non-threshold n-out-of-n keys. We have added support of arbitrary
-threshold $2 \le t \le n$, however, we made it possible to opt out therhsoldness so original CGGMP21
+threshold $2 \le t \le n$, however, we made it possible to opt out thresholdnessso original CGGMP21
 protocol can be carried out if needed.
 
 ## Running the protocol
@@ -256,7 +256,7 @@ they are all documented in [the spec].
 ## Timing attacks
 Timing attacks are type of side-channel attacks that leak sensitive information through duration of
 execution. We consider timing attacks out of scope as they are nearly impossible to perform for such
-complicated protcol as CGGMP21 and impossible to do in our specific deployment. Thus, we intentionally
+complicated protocolas CGGMP21 and impossible to do in our specific deployment. Thus, we intentionally
 don't do constant-time operations which gives us a significant performance boost.
 
 ## Join us in Discord!
