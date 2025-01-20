@@ -1,4 +1,4 @@
-//! ZK-proof for factoring of a RSA modulus. Called Пfac or Rfac in the CGGMP21
+//! ZK-proof for factoring of a RSA modulus. Called Пfac or Rfac in the CGGMP24
 //! paper.
 //!
 //! ## Description
@@ -145,8 +145,6 @@ pub struct Commitment {
     pub b: Integer,
     #[udigest(as = crate::common::encoding::Integer)]
     pub t: Integer,
-    #[udigest(as = crate::common::encoding::Integer)]
-    pub sigma: Integer,
 }
 
 /// Verifier's challenge to prover. Can be obtained deterministically by
@@ -198,7 +196,6 @@ pub mod interactive {
         let beta = Integer::from_rng_pm(&n_root_modulo, &mut rng);
         let mu = Integer::from_rng_pm(&l_n_circ_modulo, &mut rng);
         let nu = Integer::from_rng_pm(&l_n_circ_modulo, &mut rng);
-        let sigma = Integer::from_rng_pm(&(&two_to_l * &n_n_circ).complete(), &mut rng);
         let r = Integer::from_rng_pm(&(&two_to_l_plus_e * &n_n_circ).complete(), &mut rng);
         let x = Integer::from_rng_pm(&l_e_n_circ_modulo, &mut rng);
         let y = Integer::from_rng_pm(&l_e_n_circ_modulo, &mut rng);
@@ -209,14 +206,7 @@ pub mod interactive {
         let b = aux.combine(&beta, &y)?;
         let t = aux.rsa_modulo.combine(&q, &alpha, &aux.t, &r)?;
 
-        let commitment = Commitment {
-            p,
-            q,
-            a,
-            b,
-            t,
-            sigma,
-        };
+        let commitment = Commitment { p, q, a, b, t };
         let private_commitment = PrivateCommitment {
             alpha,
             beta,
@@ -239,18 +229,17 @@ pub mod interactive {
     /// Compute proof for given data and prior protocol values
     pub fn prove(
         pdata: PrivateData,
-        comm: &Commitment,
         pcomm: &PrivateCommitment,
         challenge: &Challenge,
     ) -> Result<Proof, Error> {
-        let sigma_circ = (&comm.sigma - &pcomm.nu * pdata.p).complete();
+        let nu_p = (&pcomm.nu * pdata.p).complete();
 
         Ok(Proof {
             z1: (&pcomm.alpha + challenge * pdata.p).complete(),
             z2: (&pcomm.beta + challenge * pdata.q).complete(),
             w1: (&pcomm.x + challenge * &pcomm.mu).complete(),
             w2: (&pcomm.y + challenge * &pcomm.nu).complete(),
-            v: &pcomm.r + challenge * sigma_circ,
+            v: &pcomm.r - challenge * nu_p,
         })
     }
 
@@ -279,7 +268,7 @@ pub mod interactive {
         }
         // check 3
         {
-            let r = aux.combine(data.n, &commitment.sigma)?;
+            let r = aux.pow_mod(&aux.s, data.n)?;
             let q_to_z1 = aux.pow_mod(&commitment.q, &proof.z1)?;
             let t_to_v = aux.pow_mod(&aux.t, &proof.v)?;
             let lhs = (q_to_z1 * t_to_v).modulo(&aux.rsa_modulo);
@@ -328,7 +317,7 @@ pub mod non_interactive {
     ) -> Result<Proof, Error> {
         let (commitment, pcomm) = super::interactive::commit(aux, data, pdata, security, rng)?;
         let challenge = challenge::<D>(shared_state, aux, data, &commitment, security);
-        let proof = super::interactive::prove(pdata, &commitment, &pcomm, &challenge)?;
+        let proof = super::interactive::prove(pdata, &pcomm, &challenge)?;
         Ok(Proof { commitment, proof })
     }
 
