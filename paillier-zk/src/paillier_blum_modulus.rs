@@ -1,9 +1,9 @@
-//! ZK-proof of Paillier-Blum modulus. Called Пmod or Rmod in the CGGMP21 paper.
+//! ZK-proof of Paillier-Blum modulus. Called Пmod or Rmod in the CGGMP24 paper.
 //!
 //! ## Description
-//! A party P has a modulus `N = pq`, with p and q being Blum primes, and
-//! `gcd(N, phi(N)) = 1`. P wants to prove that those equalities about N hold,
-//! without disclosing p and q.
+//! A party P has a Paillier-Blum modulus `N = pq`, with p and q being primes such
+//! that `gcd(N, phi(N)) = 1` and `p,q = 3 \mod 4`. P wants to prove that those
+//! equalities about N hold, without disclosing p and q.
 //!
 //! ## Example
 //! ```rust
@@ -123,7 +123,10 @@ pub mod interactive {
     use rand_core::RngCore;
     use rug::{Complete, Integer};
 
-    use crate::common::sqrt::{blum_sqrt, find_residue, sample_neg_jacobi};
+    use crate::common::{
+        fail_if_ne,
+        sqrt::{blum_sqrt, find_residue, sample_neg_jacobi},
+    };
     use crate::{BadExponent, Error, ErrorReason, InvalidProof, InvalidProofReason};
 
     use super::{Challenge, Commitment, Data, PrivateData, Proof, ProofPoint};
@@ -178,6 +181,13 @@ pub mod interactive {
         }
         if data.n.is_even() {
             return Err(InvalidProofReason::ModulusIsEven.into());
+        }
+        {
+            fail_if_ne(
+                InvalidProofReason::EqualityCheck(1),
+                &(data.n.clone()).gcd_ref(&commitment.w).complete(),
+                Integer::ONE,
+            )?;
         }
         for (point, y) in proof.points.iter().zip(challenge.ys.iter()) {
             if Integer::from(
